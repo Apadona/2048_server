@@ -2,38 +2,65 @@
 
 #include <cstdint>
 
-using sqaureValue = std::uint32_t;
+using SquareValue = std::uint32_t;
+using SquareIndex = std::uint32_t;
 
 enum class ShiftDirection
 {
-    LEFT,
-    UP,
-    DOWN,
-    RIGHT
+  LEFT,
+  UP,
+  DOWN,
+  RIGHT
 };
 
 enum class GameStatus
 {
-    WIN,
-    LOOSE,
-    ONGOING
+  WIN,
+  LOOSE,
+  ONGOING
 };
 
 class GameLogic
 {
+  static constexpr SquareValue  slot_default_value = 2;
+  struct Slot
+  {
 public:
-    GameLogic();
+    Slot() = default;
 
-    GameLogic( const GameLogic& other ) = delete;
-    GameLogic( GameLogic&& other ) = delete;
+    Slot(SquareValue value, bool occupied);
 
-    GameLogic& operator=( const GameLogic& other ) = delete;
-    GameLogic& operator=( GameLogic&& other ) = delete;
+    Slot(const Slot &other);
 
-    void Shift( ShiftDirection direction );
+    Slot& operator=(const Slot &other);
 
-    GameStatus GetStatus();
+    // Deoccupy a place.
+    void  Deoccupy();
+
+    SquareValue  m_value;
+    bool         m_occupied;
+  };
+
+public:
+  GameLogic() = default;
+
+  GameLogic(const GameLogic &other) = delete;
+
+  GameLogic(GameLogic &&other) = delete;
+
+  GameLogic& operator=(const GameLogic &other) = delete;
+
+  GameLogic& operator=(GameLogic &&other) = delete;
+
+  void  Shift(ShiftDirection direction);
+
+  GameStatus  GetStatus();
 
 private:
-    std::uint32_t m_values[16] = {0};
+  void  GenerateSlot();
+
+  SquareIndex  ChooseRandomSlot() const;
+
+private:
+  Slot  m_slots[16];
 };
