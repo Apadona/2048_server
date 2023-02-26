@@ -2,11 +2,14 @@
 
 #include <cstdint>
 
-using SquareValue = std::uint32_t;
-using SquareIndex = std::uint32_t;
+#include <QtGlobal>
+
+using SquareValue = quint32;
+using SquareIndex = quint32;
 
 enum class ShiftDirection
 {
+  NONE,
   LEFT,
   UP,
   DOWN,
@@ -22,7 +25,6 @@ enum class GameStatus
 
 class GameLogic
 {
-  static constexpr SquareValue  slot_default_value = 2;
   struct Slot
   {
 public:
@@ -35,10 +37,14 @@ public:
     Slot& operator=(const Slot &other);
 
     // Deoccupy a place.
-    void  Deoccupy();
+    void  DeOccupy();
 
-    SquareValue  m_value;
-    bool         m_occupied;
+    void  Occupy();
+
+    bool  IsOcupied() const;
+
+    SquareValue  m_value    = 0;
+    bool         m_occupied = false;
   };
 
 public:
@@ -54,13 +60,18 @@ public:
 
   void  Shift(ShiftDirection direction);
 
+  void  Evaluate();
+
   GameStatus  GetStatus();
 
-private:
-  void  GenerateSlot();
+public:
+  static constexpr SquareIndex  GameRows           = 4;
+  static constexpr SquareIndex  GameColumns        = 4;
+  static constexpr SquareValue  slot_default_value = 2;
 
+private:
   SquareIndex  ChooseRandomSlot() const;
 
 private:
-  Slot  m_slots[16];
+  Slot  m_slots[GameRows * GameColumns];
 };

@@ -1,7 +1,8 @@
 #include "gamewindow.hpp"
+#include "gamelogic.hpp"
 
-#include <QApplication>
 #include <QDebug>
+#include <QApplication>
 #include <QPushButton>
 #include <QGridLayout>
 #include <QMessageBox>
@@ -12,22 +13,22 @@ int  main(int argc, char *argv[])
   QApplication  app_2048(argc, argv);
   GameWindow    w;
 
-  w.resize(100, 50);
+  w.setWindowFlags(Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint);
 
+  w.setFixedSize(200, 200);
   QVector<QPushButton *>  button_list;
 
-  for (int i = 0; i < 16; ++i)
+  for (int i = 0; i < GameLogic::GameRows *GameLogic::GameColumns; ++i)
   {
     QPushButton *button = new QPushButton();
-    // button->resize(100, 100);
     button_list.push_back(button);
   }
 
   QGridLayout *grid_layout = new QGridLayout();
 
-  for (int i = 0; i < 4; ++i)
+  for (int i = 0; i < GameLogic::GameRows; ++i)
   {
-    for (int j = 0; j < 4; ++j)
+    for (int j = 0; j < GameLogic::GameColumns; ++j)
     {
       grid_layout->addWidget(button_list[i * 4 + j], i, j);
     }
@@ -39,7 +40,7 @@ int  main(int argc, char *argv[])
 
   w.show();
 
-  app_2048.processEvents();
+  // app_2048.processEvents();
 
   return app_2048.exec();
 }
