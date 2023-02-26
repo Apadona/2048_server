@@ -70,7 +70,9 @@ Thumbs.db
 # --------
 *.dll
 *.exe
+
 /bin
 /build
 junk
 *.user
+PAT
