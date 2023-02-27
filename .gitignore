@@ -73,6 +73,11 @@ Thumbs.db
 
 /bin
 /build
+/cmakefiles
 junk
+junk.*
 *.user
 PAT
+
+# temporary
+Doxyfile
