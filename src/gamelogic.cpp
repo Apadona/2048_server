@@ -1,6 +1,5 @@
 #include "gamelogic.hpp"
 
-#include <QDebug>
 #include <QRandomGenerator>
 
 namespace
@@ -11,7 +10,42 @@ inline decltype(auto) GenerateRandomNumber()
 }
 }
 
-GameLogic::Slot::Slot(SquareValue value, bool occupied):
+QDebug& operator<<(QDebug &log, const GameLogic &logic)
+{
+  for (int i = 0; i < logic.GameRows; ++i)
+  {
+    for (int j = 0; j < logic.GameColumns; ++j)
+    {
+      log << ((logic.m_slots[i].m_occupied) ? logic.m_slots[i].m_value : 'o') << ' ';
+    }
+
+    log << '\n';
+  }
+
+  return log;
+}
+
+std::ostream& operator<<(std::ostream &log, const GameLogic &logic)
+{
+  for (int i = 0; i < logic.GameRows; ++i)
+  {
+    for (int j = 0; j < logic.GameColumns; ++j)
+    {
+      log << ((logic.m_slots[i].m_occupied) ? logic.m_slots[i].m_value : 'o') << ' ';
+    }
+
+    log << '\n';
+  }
+
+  return log;
+}
+
+GameLogic::Slot::Slot():
+  m_value(0), m_occupied(false)
+{
+}
+
+GameLogic::Slot::Slot(SlotValue value, bool occupied):
   m_value(value), m_occupied(occupied)
 {
 }
@@ -21,7 +55,7 @@ GameLogic::Slot::Slot(const Slot &other)
   *this = other;
 }
 
-GameLogic::Slot& GameLogic::Slot::operator=(const Slot &other)
+GameLogic::Slot& GameLogic::Slot::operator=(const GameLogic::Slot &other)
 {
   if (this != &other)
   {
@@ -30,6 +64,23 @@ GameLogic::Slot& GameLogic::Slot::operator=(const Slot &other)
   }
 
   return *this;
+}
+
+// GameLogic::Slot& GameLogic::Slot::operator+(const GameLogic::Slot &other) const
+// {
+// return Slot(m_value + other.m_value, m_occupied);
+// }
+
+GameLogic::Slot& GameLogic::Slot::operator+=(const GameLogic::Slot &other)
+{
+  m_value += other.m_value;
+
+  return *this;
+}
+
+void  GameLogic::Slot::Set(SlotValue value)
+{
+  m_value = value;
 }
 
 void  GameLogic::Slot::DeOccupy()
@@ -58,19 +109,23 @@ void  GameLogic::Shift(ShiftDirection direction)
     break;
 
   case ShiftDirection::LEFT:
+    SetAllSlots(1);
     break;
 
   case ShiftDirection::UP:
+    SetAllSlots(2);
     break;
 
   case ShiftDirection::DOWN:
+    SetAllSlots(3);
     break;
 
   case ShiftDirection::RIGHT:
+    SetAllSlots(4);
     break;
   }
 
-  Evaluate();
+  // Evaluate();
 }
 
 void  GameLogic::Evaluate()
@@ -79,11 +134,17 @@ void  GameLogic::Evaluate()
 
 GameStatus  GameLogic::GetStatus()
 {
+  // for now just to avoid compiler warning.
+  return GameStatus::ONGOING;
 }
 
-SquareIndex  GameLogic::ChooseRandomSlot() const
+void  GameLogic::HandleEventFromWindow(QEvent event)
 {
-  SquareIndex  index;
+}
+
+SlotIndex  GameLogic::ChooseRandomSlot() const
+{
+  SlotIndex  index;
 
   do
   {
@@ -91,4 +152,12 @@ SquareIndex  GameLogic::ChooseRandomSlot() const
   } while (m_slots[index].IsOcupied());
 
   return index;
+}
+
+void  GameLogic::SetAllSlots(SlotValue value)
+{
+  for (auto &i : m_slots)
+  {
+    i.Set(value);
+  }
 }

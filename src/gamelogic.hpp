@@ -1,11 +1,18 @@
 #pragma once
 
+#include "qobject.h"
+#include "qobjectdefs.h"
 #include <cstdint>
 
+#include <QEvent>
+#include <QDebug>
 #include <QtGlobal>
 
-using SquareValue = quint32;
-using SquareIndex = quint32;
+#include <iostream> // for debug test. temporary.
+#include <array>
+
+using SlotValue = quint32;
+using SlotIndex = quint32;
 
 enum class ShiftDirection
 {
@@ -23,18 +30,26 @@ enum class GameStatus
   ONGOING
 };
 
-class GameLogic
+class GameLogic: public QObject
 {
+  Q_OBJECT
+
+public:
   struct Slot
   {
 public:
-    Slot() = default;
+    Slot();
 
-    Slot(SquareValue value, bool occupied);
+    Slot(SlotValue value, bool occupied);
 
     Slot(const Slot &other);
 
     Slot& operator=(const Slot &other);
+
+    Slot& operator+=(const Slot &other);
+
+    // temporary
+    void  Set(SlotValue value);
 
     // Deoccupy a place.
     void  DeOccupy();
@@ -43,9 +58,21 @@ public:
 
     bool  IsOcupied() const;
 
-    SquareValue  m_value    = 0;
-    bool         m_occupied = false;
+
+    SlotValue  m_value;
+    bool       m_occupied;
   };
+  static constexpr SlotIndex  GameRows           = 4;
+  static constexpr SlotIndex  GameColumns        = 4;
+  static constexpr SlotValue  slot_default_value = 2;
+
+  using Slots = std::array<Slot, GameRows *GameColumns>;
+
+  // for debugging purposes.
+  friend QDebug& operator<<(QDebug &log, const GameLogic &logic);
+
+  // temporary.
+  friend std::ostream& operator<<(std::ostream &log, const GameLogic &logic);
 
 public:
   GameLogic() = default;
@@ -64,14 +91,26 @@ public:
 
   GameStatus  GetStatus();
 
-public:
-  static constexpr SquareIndex  GameRows           = 4;
-  static constexpr SquareIndex  GameColumns        = 4;
-  static constexpr SquareValue  slot_default_value = 2;
+  static inline constexpr SlotIndex  GetGameSize()
+  {
+    return GameRows * GameColumns;
+  }
+
+  inline const Slots & GetSlots() const
+  {
+    return m_slots;
+  }
+
+public slots:
+  void  HandleEventFromWindow(QEvent event);
+
+  // using Slots = std::array<Slot, GameLogic::GetGameSize()>;
 
 private:
-  SquareIndex  ChooseRandomSlot() const;
+  SlotIndex  ChooseRandomSlot() const;
+
+  void  SetAllSlots(SlotValue value);
 
 private:
-  Slot  m_slots[GameRows * GameColumns];
+  Slots  m_slots;
 };
