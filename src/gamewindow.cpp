@@ -1,53 +1,85 @@
 #include "gamewindow.hpp"
-#include "eventhandler.hpp"
+#include "logger.hpp"
 
-#include <QPushButton>
-#include <QGridLayout>
+#include "application.hpp"
+
 #include <QDebug>
+#include <QKeyEvent>
 
-#include <string>
-
-// GameWindow::GameWindow()
-// {
-// }
-
-GameWindow::GameWindow(QWidget *parent):
-  QMainWindow(parent), m_buttons(), m_layout(std::make_unique<QGridLayout>()),
-  m_centeral_widget(std::make_unique<QWidget>())
+ApplicationWindow::ApplicationWindow(QWidget *parent, Application_2048 *owner):
+  QMainWindow(parent), m_owner_app(owner), m_stack_widget(std::make_unique<QStackedWidget>()),
+  m_main_menu_screen(std::make_unique<QWidget>()), m_score_screen(std::make_unique<QWidget>()),
+  m_game_screen(std::make_unique<QWidget>())
 {
-  setWindowFlags(Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint);
+  // setWindowFlags(Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint);
 
   setFixedSize(200, 200);
 
-  for (int i = 0; i < GameLogic::GameRows *GameLogic::GameColumns; ++i)
-  {
-    QPushButton *button = new QPushButton();
-    m_buttons.push_back(button);
-  }
+  setObjectName("MainWindow");
 
-  for (int i = 0; i < GameLogic::GameRows; ++i)
-  {
-    for (int j = 0; j < GameLogic::GameColumns; ++j)
-    {
-      m_layout->addWidget(m_buttons[i * 4 + j], i, j);
-    }
-  }
+  m_main_menu_screen->setObjectName("MainMenuWidget");
+  m_score_screen->setObjectName("ScoresWidget");
+  m_game_screen->setObjectName("GameWidget");
 
-  m_centeral_widget->setLayout(m_layout.get());
-  setCentralWidget(m_centeral_widget.get());
+  m_stack_widget->addWidget(m_main_menu_screen.get());
+  m_stack_widget->addWidget(m_score_screen.get());
+  m_stack_widget->addWidget(m_game_screen.get());
+
+  setCentralWidget(m_stack_widget.get());
 }
 
-GameWindow::~GameWindow()
+void  ApplicationWindow::keyReleaseEvent(QKeyEvent *event)
 {
-// delete m_layout;
-// delete m_centeral_widget;
+  switch (event->key())
+  {
+  case Qt::Key_Left:
+    m_owner_app->HandleAppEvent(Application_2048_Event::SHIFT_LEFT);
+    break;
+  case Qt::Key_Up:
+    m_owner_app->HandleAppEvent(Application_2048_Event::SHIFT_UP);
+    break;
+  case Qt::Key_Right:
+    m_owner_app->HandleAppEvent(Application_2048_Event::SHIFT_RIGHT);
+    break;
+  case Qt::Key_Down:
+    m_owner_app->HandleAppEvent(Application_2048_Event::SHIFT_DOWN);
+    break;
+  case Qt::Key_Space:
+    m_owner_app->HandleAppEvent(Application_2048_Event::UPDATE_SLOTS);
+    break;
+  case Qt::Key_Escape:
+    m_owner_app->HandleAppEvent(Application_2048_Event::EXIT);
+  }
 }
 
-void  GameWindow::DrawGameSlots(const GameLogic::Slots &_slots)
+void  ApplicationWindow::DisplayView(Application_2048_View view)
 {
-  for (int i = 0; i < _slots.size(); ++i)
+  PrepareStackWidget(view);
+}
+
+void  ApplicationWindow::PrepareStackWidget(Application_2048_View view)
+{
+  quint32  index, index_1, index_2;
+
+  if (view == Application_2048_View::MAIN_MENU)
   {
-    QString  str = QString::number(_slots[i].m_value);
-    m_buttons[i]->setObjectName(str);
+    index = 0, index_1 = 1, index_2 = 2;
   }
+  else if (view == Application_2048_View::SCORES)
+  {
+    index = 1, index_1 = 0, index_2 = 2;
+  }
+  else if (view == Application_2048_View::GAME)
+  {
+    index = 2, index_1 = 0, index_2 = 1;
+  }
+  else
+  {
+    LOG_CRITICAL("there are only 3 addressabel indexes!");
+  }
+
+  m_stack_widget->widget(index_1)->hide();
+  m_stack_widget->widget(index_2)->hide();
+  m_stack_widget->widget(index)->show();
+  m_stack_widget->setCurrentWidget(m_stack_widget->widget(index));
 }

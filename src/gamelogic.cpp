@@ -1,37 +1,39 @@
 #include "gamelogic.hpp"
+#include "logger.hpp"
 
 #include <QRandomGenerator>
 
 namespace
 {
-inline decltype(auto) GenerateRandomNumber()
+inline quint32  GenerateRandomNumber()
 {
   return QRandomGenerator::global()->generate();
 }
-}
 
-QDebug& operator<<(QDebug &log, const GameLogic &logic)
+inline quint32  URand(quint32 lower, quint32 upper)
 {
-  for (int i = 0; i < logic.GameRows; ++i)
-  {
-    for (int j = 0; j < logic.GameColumns; ++j)
-    {
-      log << ((logic.m_slots[i].m_occupied) ? logic.m_slots[i].m_value : 'o') << ' ';
-    }
-
-    log << '\n';
-  }
-
-  return log;
+  return lower + GenerateRandomNumber() % (upper + 1);
+}
 }
 
 std::ostream& operator<<(std::ostream &log, const GameLogic &logic)
 {
-  for (int i = 0; i < logic.GameRows; ++i)
+  for (int i = 0; i < logic.game_rows; ++i)
   {
-    for (int j = 0; j < logic.GameColumns; ++j)
+    for (int j = 0; j < logic.game_columns; ++j)
     {
-      log << ((logic.m_slots[i].m_occupied) ? logic.m_slots[i].m_value : 'o') << ' ';
+      auto &_slot = logic.m_slots[i * logic.game_rows + j];
+
+      if (_slot.IsOcupied())
+      {
+        log << _slot.GetValue();
+      }
+      else
+      {
+        log << "N/A";
+      }
+
+      log << "  ";
     }
 
     log << '\n';
@@ -57,7 +59,7 @@ GameLogic::Slot::Slot(const Slot &other)
 
 GameLogic::Slot& GameLogic::Slot::operator=(const GameLogic::Slot &other)
 {
-  if (this != &other)
+  if (IsNot(other))
   {
     m_value    = other.m_value;
     m_occupied = other.m_occupied;
@@ -66,11 +68,6 @@ GameLogic::Slot& GameLogic::Slot::operator=(const GameLogic::Slot &other)
   return *this;
 }
 
-// GameLogic::Slot& GameLogic::Slot::operator+(const GameLogic::Slot &other) const
-// {
-// return Slot(m_value + other.m_value, m_occupied);
-// }
-
 GameLogic::Slot& GameLogic::Slot::operator+=(const GameLogic::Slot &other)
 {
   m_value += other.m_value;
@@ -78,9 +75,20 @@ GameLogic::Slot& GameLogic::Slot::operator+=(const GameLogic::Slot &other)
   return *this;
 }
 
-void  GameLogic::Slot::Set(SlotValue value)
+bool  GameLogic::Slot::operator==(const GameLogic::Slot &other) const
 {
-  m_value = value;
+  return m_value == other.m_value;
+}
+
+bool  GameLogic::Slot::IsNot(const GameLogic::Slot &other) const
+{
+  return this != &other;
+}
+
+void  GameLogic::Slot::SetValue(SlotValue value)
+{
+  m_value    = value;
+  m_occupied = true;
 }
 
 void  GameLogic::Slot::DeOccupy()
@@ -91,7 +99,8 @@ void  GameLogic::Slot::DeOccupy()
 
 void  GameLogic::Slot::Occupy()
 {
-  m_value    = GameLogic::slot_default_value;
+  m_value = (URand(0, 1)) ? GameLogic::slot_default_value_1 : GameLogic::slot_default_value_2;
+
   m_occupied = true;
 }
 
@@ -100,46 +109,234 @@ bool  GameLogic::Slot::IsOcupied() const
   return m_occupied;
 }
 
-void  GameLogic::Shift(ShiftDirection direction)
+GameLogic::GameLogic()
 {
-  switch (direction)
+  for (auto &i : m_slots)
   {
-  case ShiftDirection::NONE:
-    qWarning() << "shift direction cannot be NONE!\n";
-    break;
-
-  case ShiftDirection::LEFT:
-    SetAllSlots(1);
-    break;
-
-  case ShiftDirection::UP:
-    SetAllSlots(2);
-    break;
-
-  case ShiftDirection::DOWN:
-    SetAllSlots(3);
-    break;
-
-  case ShiftDirection::RIGHT:
-    SetAllSlots(4);
-    break;
+    i.DeOccupy();
   }
-
-  // Evaluate();
 }
 
-void  GameLogic::Evaluate()
+void  GameLogic::Start()
 {
+  m_score = 0;
+
+  for (int i = 0; i < 2; ++i)
+  {
+    GenerateRandomSlot();
+  }
+}
+
+void  GameLogic::ReStart()
+{
+  m_score = 0;
+
+  SetAllSlots(0);
+}
+
+void  GameLogic::Shift(ShiftDirection direction)
+{
+  if (GetStatus() != GameStatus::LOOSE)
+  {
+    switch (direction)
+    {
+    case ShiftDirection::NONE:
+      LOG_WARNING("shift direction cannot be NONE!\n");
+      break;
+
+    case ShiftDirection::LEFT:
+
+      for (int i = 0; i < game_rows; ++i)
+      {
+        for (int j = 3; j > 0; --j)
+        {
+          auto &curr_slot = m_slots[i * game_rows + j];
+          auto &next_slot = m_slots[i * game_rows + j - 1];
+
+          if (curr_slot.IsOcupied())
+          {
+            if (next_slot.IsOcupied())
+            {
+              if (curr_slot == next_slot)
+              {
+                curr_slot += next_slot;
+                next_slot  = curr_slot;
+                curr_slot.DeOccupy();
+                m_score += next_slot.GetValue();
+              }
+            }
+            else
+            {
+              next_slot = curr_slot;
+              curr_slot.DeOccupy();
+            }
+          }
+        }
+      }
+
+      break;
+
+    case ShiftDirection::UP:
+
+      for (int i = 3; i > 0; --i)
+      {
+        for (int j = 0; j < game_columns; ++j)
+        {
+          auto &curr_slot = m_slots[i * game_rows + j];
+          auto &next_slot = m_slots[(i - 1) * game_rows + j];
+
+          if (curr_slot.IsOcupied())
+          {
+            if (next_slot.IsOcupied())
+            {
+              if (curr_slot == next_slot)
+              {
+                curr_slot += next_slot;
+                next_slot  = curr_slot;
+                curr_slot.DeOccupy();
+              }
+            }
+            else
+            {
+              next_slot = curr_slot;
+              curr_slot.DeOccupy();
+            }
+          }
+        }
+      }
+
+      break;
+
+    case ShiftDirection::DOWN:
+
+      for (int i = 1; i < game_columns; ++i)
+      {
+        for (int j = 0; j < game_columns; ++j)
+        {
+          auto &curr_slot = m_slots[(i - 1) * game_rows + j];
+          auto &next_slot = m_slots[i * game_rows + j];
+
+          if (curr_slot.IsOcupied())
+          {
+            if (next_slot.IsOcupied())
+            {
+              if (curr_slot == next_slot)
+              {
+                curr_slot += next_slot;
+                next_slot  = curr_slot;
+                curr_slot.DeOccupy();
+              }
+            }
+            else
+            {
+              next_slot = curr_slot;
+              curr_slot.DeOccupy();
+            }
+          }
+        }
+      }
+
+      break;
+
+    case ShiftDirection::RIGHT:
+
+      for (int i = 0; i < game_rows; ++i)
+      {
+        for (int j = 1; j < game_columns; ++j)
+        {
+          auto &curr_slot = m_slots[i * game_rows + (j - 1)];
+          auto &next_slot = m_slots[i * game_rows + j];
+
+          if (curr_slot.IsOcupied())
+          {
+            if (next_slot.IsOcupied())
+            {
+              if (curr_slot == next_slot)
+              {
+                curr_slot += next_slot;
+                next_slot  = curr_slot;
+                curr_slot.DeOccupy();
+              }
+            }
+            else
+            {
+              next_slot = curr_slot;
+              curr_slot.DeOccupy();
+            }
+          }
+        }
+      }
+
+      break;
+    }
+  }
+
+  Evaluate();
+}
+
+bool  GameLogic::Evaluate()
+{
+  GameStatus  status = GetStatus();
+
+  if (status != GameStatus::LOOSE)
+  {
+    GenerateRandomSlot();
+
+    return true;
+  }
+
+  return false;
+}
+
+void  GameLogic::GenerateRandomSlot()
+{
+  auto  slot_index = ChooseRandomSlot();
+
+  OccupySlot(slot_index);
 }
 
 GameStatus  GameLogic::GetStatus()
 {
-  // for now just to avoid compiler warning.
-  return GameStatus::ONGOING;
+  // first check for win.
+  for (const auto &i : m_slots)
+  {
+    if (i.GetValue() == GameLogic::win_condition_value)
+    {
+      return GameStatus::WIN;
+    }
+  }
+
+  bool  loose = true;
+
+  for (const auto &i : m_slots)
+  {
+    if (!i.IsOcupied())
+    {
+      loose = false;
+    }
+  }
+
+  if (loose)
+  {
+    return GameStatus::LOOSE;
+  }
+  else
+  {
+    return GameStatus::ONGOING;
+  }
 }
 
-void  GameLogic::HandleEventFromWindow(QEvent event)
+void  GameLogic::OccupySlot(SlotIndex index)
 {
+  m_slots[index].Occupy();
+}
+
+void  GameLogic::MergeSlots(Slot &first, Slot &second)
+{
+  first += second;
+  second = first;
+  first.DeOccupy();
+  m_score += second.GetValue();
 }
 
 SlotIndex  GameLogic::ChooseRandomSlot() const
@@ -148,7 +345,7 @@ SlotIndex  GameLogic::ChooseRandomSlot() const
 
   do
   {
-    index = GenerateRandomNumber();
+    index = URand(0, 15);
   } while (m_slots[index].IsOcupied());
 
   return index;
@@ -156,8 +353,18 @@ SlotIndex  GameLogic::ChooseRandomSlot() const
 
 void  GameLogic::SetAllSlots(SlotValue value)
 {
-  for (auto &i : m_slots)
+  if (value)
   {
-    i.Set(value);
+    for (auto &i : m_slots)
+    {
+      i.SetValue(value);
+    }
+  }
+  else // in case of 0 which is for reseting the game, just deoccupy.
+  {
+    for (auto &i : m_slots)
+    {
+      i.DeOccupy();
+    }
   }
 }

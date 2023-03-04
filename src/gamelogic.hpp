@@ -13,6 +13,7 @@
 
 using SlotValue = quint32;
 using SlotIndex = quint32;
+using GameScore = quint32;
 
 enum class ShiftDirection
 {
@@ -25,17 +26,15 @@ enum class ShiftDirection
 
 enum class GameStatus
 {
-  WIN,
-  LOOSE,
-  ONGOING
+  WIN     = 1,         // when one slot reaches the value 2048. but game continiues.
+  LOOSE   = 2,         // when all the slots are occupied and no valid move can be made.
+  ONGOING = 3        // when neather of the above conditions are met.
 };
 
-class GameLogic: public QObject
+class GameLogic
 {
-  Q_OBJECT
-
 public:
-  struct Slot
+  class Slot
   {
 public:
     Slot();
@@ -48,8 +47,18 @@ public:
 
     Slot& operator+=(const Slot &other);
 
+    bool  operator==(const Slot &other) const;
+
+    // just for safety measures. checks whether the slots are not the same.
+    bool  IsNot(const Slot &other) const;
+
     // temporary
-    void  Set(SlotValue value);
+    void  SetValue(SlotValue value);
+
+    inline SlotValue  GetValue() const
+    {
+      return m_value;
+    }
 
     // Deoccupy a place.
     void  DeOccupy();
@@ -58,24 +67,23 @@ public:
 
     bool  IsOcupied() const;
 
-
+private:
     SlotValue  m_value;
     bool       m_occupied;
   };
-  static constexpr SlotIndex  GameRows           = 4;
-  static constexpr SlotIndex  GameColumns        = 4;
-  static constexpr SlotValue  slot_default_value = 2;
 
-  using Slots = std::array<Slot, GameRows *GameColumns>;
+  static constexpr SlotIndex  game_rows            = 4;
+  static constexpr SlotIndex  game_columns         = 4;
+  static constexpr SlotValue  slot_default_value_1 = 2;
+  static constexpr SlotValue  slot_default_value_2 = 4;
+  static constexpr SlotValue  win_condition_value  = 2048;
 
-  // for debugging purposes.
-  friend QDebug& operator<<(QDebug &log, const GameLogic &logic);
+  using Slots = std::array<Slot, game_rows *game_columns>;
 
-  // temporary.
   friend std::ostream& operator<<(std::ostream &log, const GameLogic &logic);
 
 public:
-  GameLogic() = default;
+  GameLogic();
 
   GameLogic(const GameLogic &other) = delete;
 
@@ -85,15 +93,23 @@ public:
 
   GameLogic& operator=(GameLogic &&other) = delete;
 
+  void  Start(); // starts the game by occuping two slots.
+
+  void  ReStart(); // restarts the game.
+
   void  Shift(ShiftDirection direction);
 
-  void  Evaluate();
+  void  CheckForColision();
+
+  bool  Evaluate();
+
+  void  GenerateRandomSlot();
 
   GameStatus  GetStatus();
 
   static inline constexpr SlotIndex  GetGameSize()
   {
-    return GameRows * GameColumns;
+    return game_rows * game_columns;
   }
 
   inline const Slots & GetSlots() const
@@ -101,16 +117,22 @@ public:
     return m_slots;
   }
 
-public slots:
-  void  HandleEventFromWindow(QEvent event);
-
-  // using Slots = std::array<Slot, GameLogic::GetGameSize()>;
+  inline GameScore  GetGameScore() const
+  {
+    return m_score;
+  }
 
 private:
+  void  OccupySlot(SlotIndex index);
+
+// merges first slot into second slot.
+  void  MergeSlots(Slot &first, Slot &second);
+
   SlotIndex  ChooseRandomSlot() const;
 
   void  SetAllSlots(SlotValue value);
 
 private:
-  Slots  m_slots;
+  Slots      m_slots;
+  GameScore  m_score;
 };
