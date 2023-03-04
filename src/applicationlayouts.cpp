@@ -1,8 +1,9 @@
 #include "applicationlayouts.hpp"
-
 #include "application.hpp"
+#include "csscolors.hpp"
+#include <QDebug>
 
-#include "QMouseEvent"
+#include <QMouseEvent>
 
 Application_2048_Button::Application_2048_Button():
   m_owner_app(nullptr),
@@ -67,7 +68,9 @@ void  GameLayout::DisplaySlotValues(const GameLogic::Slots &slot_values)
   for (int i = 0; i < slot_values.size(); ++i)
   {
     m_slot_values[i]->setText(QString::number(slot_values[i].GetValue()));
-    m_slot_values[i]->setStyleSheet("QLabel { background-color : red; color : blue; }");
+    QString  color = _2048_CSSColors::GetBySlotValue(slot_values[i].GetValue());
+    qInfo() << color;
+    m_slot_values[i]->setStyleSheet("QLabel { background-color : rgb(100,150,50); color : rgb(85,85,85); }");
   }
 }
 

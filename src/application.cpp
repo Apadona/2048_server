@@ -1,9 +1,7 @@
 #include "application.hpp"
 #include "applicationlayouts.hpp"
-
 #include "logger.hpp"
-
-// Application_2048 *app = nullptr;
+#include "csscolors.hpp"
 
 Application_2048::Application_2048(int &argc, char **argv):
   QApplication(argc, argv), m_window(nullptr, this), m_mainmenu_layout(std::make_unique<MainMenuLayout>(this)),
@@ -12,6 +10,8 @@ Application_2048::Application_2048(int &argc, char **argv):
   m_window.m_main_menu_screen->setLayout(m_mainmenu_layout.get());
   m_window.m_score_screen->setLayout(m_scoreboard_layout.get());
   m_window.m_game_screen->setLayout(m_game_layout.get());
+
+  _2048_CSSColors::Init();
 }
 
 qint32  Application_2048::Start()
