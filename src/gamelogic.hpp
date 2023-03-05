@@ -95,17 +95,26 @@ public:
 
   void  Start(); // starts the game by occuping two slots.
 
-  void  ReStart(); // restarts the game.
+  void  ReStart(); // restarts the game by deoccuping all slots.
 
   void  Shift(ShiftDirection direction);
 
-  void  CheckForColision();
+  // replaces the second slot with the first slot.
+  void  ReplaceSlots(Slot &first, Slot &second);
+
+  // merges first slot into second slot. deoccupies the first.
+  SlotValue  MergeSlots(Slot &first, Slot &second);
+
+  // either shifts or mereges to slots depending on their values.
+  void  EvaluateSlots(Slot &first, Slot &second);
 
   bool  Evaluate();
 
+  bool  CheckIfLost() const;
+
   void  GenerateRandomSlot();
 
-  GameStatus  GetStatus();
+  GameStatus  GetStatus() const;
 
   static inline constexpr SlotIndex  GetGameSize()
   {
@@ -123,11 +132,6 @@ public:
   }
 
 private:
-  void  OccupySlot(SlotIndex index);
-
-// merges first slot into second slot.
-  void  MergeSlots(Slot &first, Slot &second);
-
   SlotIndex  ChooseRandomSlot() const;
 
   void  SetAllSlots(SlotValue value);
