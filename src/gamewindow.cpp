@@ -75,7 +75,7 @@ void  ApplicationWindow::PrepareStackWidget(Application_2048_View view)
   }
   else
   {
-    LOG_CRITICAL("there are only 3 addressabel indexes!");
+    LOG_CRITICAL("there are only 3 addressable indexes!");
   }
 
   m_stack_widget->widget(index_1)->hide();
