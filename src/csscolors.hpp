@@ -11,9 +11,9 @@ public:
   static QString  Build(QColor background_color, QColor foreground_color);
 
 private:
-  inline static const QString  begin  = " QValue { background-color : rgb(";
+  inline static const QString  begin  = " QLabel { background-color : rgb(";
   inline static const QString  middle = "); color: rgb(";
-  inline static const QString  end    = ");";
+  inline static const QString  end    = "); }";
 };
 
 class _2048_CSSColors

@@ -69,8 +69,7 @@ void  GameLayout::DisplaySlotValues(const GameLogic::Slots &slot_values)
   {
     m_slot_values[i]->setText(QString::number(slot_values[i].GetValue()));
     QString  color = _2048_CSSColors::GetBySlotValue(slot_values[i].GetValue());
-    qInfo() << color;
-    m_slot_values[i]->setStyleSheet("QLabel { background-color : rgb(100,150,50); color : rgb(85,85,85); }");
+    m_slot_values[i]->setStyleSheet(color);
   }
 }
 
