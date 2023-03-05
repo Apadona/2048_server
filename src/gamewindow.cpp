@@ -13,7 +13,7 @@ ApplicationWindow::ApplicationWindow(QWidget *parent, Application_2048 *owner):
 {
   // setWindowFlags(Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint);
 
-  setFixedSize(200, 200);
+  // setFixedSize(200, 200);
 
   setObjectName("MainWindow");
 
@@ -43,9 +43,6 @@ void  ApplicationWindow::keyReleaseEvent(QKeyEvent *event)
     break;
   case Qt::Key_Down:
     m_owner_app->HandleAppEvent(Application_2048_Event::SHIFT_DOWN);
-    break;
-  case Qt::Key_Space:
-    m_owner_app->HandleAppEvent(Application_2048_Event::UPDATE_SLOTS);
     break;
   case Qt::Key_Escape:
     m_owner_app->HandleAppEvent(Application_2048_Event::EXIT);
@@ -78,8 +75,8 @@ void  ApplicationWindow::PrepareStackWidget(Application_2048_View view)
     LOG_CRITICAL("there are only 3 addressable indexes!");
   }
 
+  m_stack_widget->widget(index)->show();
   m_stack_widget->widget(index_1)->hide();
   m_stack_widget->widget(index_2)->hide();
-  m_stack_widget->widget(index)->show();
   m_stack_widget->setCurrentWidget(m_stack_widget->widget(index));
 }

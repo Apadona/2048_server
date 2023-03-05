@@ -30,6 +30,9 @@ public:
   ApplicationWindow(QWidget          *parent  = nullptr,
                     Application_2048 *m_owner = nullptr);
 
+  //template<typename ... Layouts>
+  //void AddView( Layouts&& ... layouts );
+
 
 private:
   void  DisplayView(Application_2048_View view);

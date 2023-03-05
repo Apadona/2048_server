@@ -11,7 +11,7 @@ enum class Application_2048_State
 {
   MAIN_MENU,
   GAME,
-  OPTIONS
+  SCORES_MENU
 };
 
 class Application_2048: public QApplication

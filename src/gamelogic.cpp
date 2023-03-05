@@ -121,6 +121,8 @@ void  GameLogic::Start()
 {
   m_score = 0;
 
+  SetAllSlots(0);
+
   for (int i = 0; i < 2; ++i)
   {
     GenerateRandomSlot();
@@ -132,6 +134,8 @@ void  GameLogic::ReStart()
   m_score = 0;
 
   SetAllSlots(0);
+
+  Start();
 }
 
 void  GameLogic::Shift(ShiftDirection direction)

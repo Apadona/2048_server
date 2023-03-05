@@ -111,7 +111,7 @@ void  Application_2048::HandleAppEvent(Application_2048_Event event)
 
     if (m_state == Application_2048_State::GAME)
     {
-      m_game.ReStart();
+      m_game.Start();
       UpdateGameScreen();
     }
 
@@ -129,7 +129,7 @@ void  Application_2048::HandleAppEvent(Application_2048_Event event)
       m_game_layout->Reset();
       DisplayMainMenu();
     }
-    else if (m_state == Application_2048_State::OPTIONS)
+    else if (m_state == Application_2048_State::SCORES_MENU)
     {
       DisplayMainMenu();
     }
@@ -159,7 +159,7 @@ void  Application_2048::StartGame()
 
 void  Application_2048::DisplayScores()
 {
-  m_state = Application_2048_State::OPTIONS;
+  m_state = Application_2048_State::SCORES_MENU;
   m_window.DisplayView(Application_2048_View::SCORES);
   // PlayerRecords  player_records = ReadPlayerRecords();
 }

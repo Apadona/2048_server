@@ -46,7 +46,10 @@ MainMenuLayout::MainMenuLayout(Application_2048 *app):
 GameLayout::GameLayout(Application_2048 *app):
   m_owner_app(app),
   m_score(std::make_unique<QLabel>("0")),
-  m_reset_button(std::make_unique<Application_2048_Button>(m_owner_app, "Reset", Application_2048_Event::RESET_GAME))
+  m_reset_button(std::make_unique<Application_2048_Button>(m_owner_app, "Reset", Application_2048_Event::RESET_GAME)),
+  m_back_button(std::make_unique<Application_2048_Button>(m_owner_app, "back", Application_2048_Event::EXIT)),
+  m_label_layout(std::make_unique<QHBoxLayout>()), m_slot_grid(std::make_unique<QGridLayout>()),
+  m_button_layout(std::make_unique<QHBoxLayout>())
 {
   setObjectName("GameLayout");
 
@@ -58,9 +61,15 @@ GameLayout::GameLayout(Application_2048 *app):
       label->setAlignment(Qt::AlignCenter);
       label->setAutoFillBackground(true);
       m_slot_values.push_back(label);
-      addWidget(m_slot_values[i * GameLogic::game_rows + j], i, j);
+      m_slot_grid->addWidget(m_slot_values[i * GameLogic::game_rows + j], i, j);
     }
   }
+
+  m_button_layout->addWidget(m_reset_button.get());
+  m_button_layout->addWidget(m_back_button.get());
+
+  addLayout(m_slot_grid.get());
+  addLayout(m_button_layout.get());
 }
 
 void  GameLayout::DisplaySlotValues(const GameLogic::Slots &slot_values)
@@ -83,10 +92,23 @@ void  GameLayout::Reset()
 
 ScoreBoardLayout::ScoreBoardLayout(Application_2048 *app):
   m_owner_app(app),
-  m_exit_button(std::make_unique<Application_2048_Button>(m_owner_app, "Exit", Application_2048_Event::EXIT))
+  m_back_button(std::make_unique<Application_2048_Button>(m_owner_app, "Exit", Application_2048_Event::EXIT)),
+  m_label_grid(std::make_unique<QGridLayout>()), m_button_layout(std::make_unique<QHBoxLayout>())
 {
   setObjectName("ScoreBoardLayout");
-  // QLabel *label = new QLabel("");
+
+  for (int i = 0; i < 3; ++i)
+  {
+    m_labels.push_back(new QLabel(m_label_headers[i]));
+    m_labels.at(i)->setAlignment(Qt::AlignCenter);
+    m_labels.at(i)->setAutoFillBackground(true);
+    m_label_grid->addWidget(m_labels.at(i), 0, i);
+  }
+
+  m_button_layout->addWidget(m_back_button.get());
+
+  addLayout(m_label_grid.get());
+  addLayout(m_button_layout.get());
 }
 
 void  ScoreBoardLayout::DisplayScores(const PlayerRecords &records)
