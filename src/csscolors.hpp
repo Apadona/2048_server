@@ -23,6 +23,12 @@ public:
 
   static QString  GetBySlotValue(SlotValue value);
 
+  // colors used when user has entered a valid or an invalid name.
+
+  static QString  GetErrorColor();
+
+  static QString  GetValidationColor();
+
 private:
   inline static QString  color_2;
   inline static QString  color_4;
@@ -36,4 +42,8 @@ private:
   inline static QString  color_1024;
   inline static QString  color_2048;
   inline static QString  color_4098_and_upper;
+
+  // message colors.
+  inline static QString  error_color;
+  inline static QString  validation_color;
 };

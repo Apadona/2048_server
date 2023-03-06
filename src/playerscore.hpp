@@ -24,6 +24,7 @@ struct PlayerRecord
 
   QString  m_name;
   quint32  m_score;
+  QTime    m_played_time;
 };
 
 using PlayerRecords = std::vector<PlayerRecord>;

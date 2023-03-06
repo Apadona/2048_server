@@ -9,7 +9,7 @@
 ApplicationWindow::ApplicationWindow(QWidget *parent, Application_2048 *owner):
   QMainWindow(parent), m_owner_app(owner), m_stack_widget(std::make_unique<QStackedWidget>()),
   m_main_menu_screen(std::make_unique<QWidget>()), m_score_screen(std::make_unique<QWidget>()),
-  m_game_screen(std::make_unique<QWidget>())
+  m_game_screen(std::make_unique<QWidget>()), m_register_screen(std::make_unique<QWidget>())
 {
   // setWindowFlags(Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint);
 
@@ -20,10 +20,12 @@ ApplicationWindow::ApplicationWindow(QWidget *parent, Application_2048 *owner):
   m_main_menu_screen->setObjectName("MainMenuWidget");
   m_score_screen->setObjectName("ScoresWidget");
   m_game_screen->setObjectName("GameWidget");
+  m_register_screen->setObjectName("RegisterScreen");
 
   m_stack_widget->addWidget(m_main_menu_screen.get());
   m_stack_widget->addWidget(m_score_screen.get());
   m_stack_widget->addWidget(m_game_screen.get());
+  m_stack_widget->addWidget(m_register_screen.get());
 
   setCentralWidget(m_stack_widget.get());
 }
@@ -49,6 +51,33 @@ void  ApplicationWindow::keyReleaseEvent(QKeyEvent *event)
   }
 }
 
+void  ApplicationWindow::AddLayout(QLayout *layout, Application_2048_View view)
+{
+  if (layout)
+  {
+    if (view == Application_2048_View::MAIN_MENU)
+    {
+      m_main_menu_screen->setLayout(layout);
+    }
+    else if (view == Application_2048_View::SCORES)
+    {
+      m_score_screen->setLayout(layout);
+    }
+    else if (view == Application_2048_View::GAME)
+    {
+      m_game_screen->setLayout(layout);
+    }
+    else if (view == Application_2048_View::REGISTER)
+    {
+      m_register_screen->setLayout(layout);
+    }
+  }
+  else
+  {
+    LOG_WARNING("cannot set an empty layout for window!");
+  }
+}
+
 void  ApplicationWindow::DisplayView(Application_2048_View view)
 {
   PrepareStackWidget(view);
@@ -56,19 +85,23 @@ void  ApplicationWindow::DisplayView(Application_2048_View view)
 
 void  ApplicationWindow::PrepareStackWidget(Application_2048_View view)
 {
-  quint32  index, index_1, index_2;
+  quint32  index, index_1, index_2, index_3;
 
   if (view == Application_2048_View::MAIN_MENU)
   {
-    index = 0, index_1 = 1, index_2 = 2;
+    index = 0, index_1 = 1, index_2 = 2, index_3 = 3;
   }
   else if (view == Application_2048_View::SCORES)
   {
-    index = 1, index_1 = 0, index_2 = 2;
+    index = 1, index_1 = 0, index_2 = 2, index_3 = 3;
   }
   else if (view == Application_2048_View::GAME)
   {
-    index = 2, index_1 = 0, index_2 = 1;
+    index = 2, index_1 = 0, index_2 = 1, index_3 = 3;
+  }
+  else if (view == Application_2048_View::REGISTER)
+  {
+    index = 3, index_1 = 0, index_2 = 1, index_3 = 2;
   }
   else
   {
@@ -78,5 +111,6 @@ void  ApplicationWindow::PrepareStackWidget(Application_2048_View view)
   m_stack_widget->widget(index)->show();
   m_stack_widget->widget(index_1)->hide();
   m_stack_widget->widget(index_2)->hide();
+  m_stack_widget->widget(index_3)->hide();
   m_stack_widget->setCurrentWidget(m_stack_widget->widget(index));
 }

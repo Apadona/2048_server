@@ -9,13 +9,24 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QLabel>
+#include <QTextEdit>
 
 #include <memory>
 #include <array>
 
 class Application_2048;
 
-class Application_2048_Button: public QPushButton
+class Application_2048_WidgetData
+{
+public:
+  Application_2048_WidgetData(Application_2048 *app, Application_2048_Event assosiated_event);
+
+protected:
+  Application_2048       *m_owner_app        = nullptr;
+  Application_2048_Event  m_assosiated_event = Application_2048_Event::NONE;
+};
+
+class Application_2048_Button: public QPushButton, Application_2048_WidgetData
 {
 public:
   Application_2048_Button();
@@ -24,10 +35,17 @@ public:
 
 protected:
   virtual void  mousePressEvent(QMouseEvent *e) override;
+};
+
+class Application_2048_TextEdit: public QTextEdit, Application_2048_WidgetData
+{
+public:
+  Application_2048_TextEdit();
+
+  Application_2048_TextEdit(Application_2048 *app);
 
 protected:
-  Application_2048       *m_owner_app;
-  Application_2048_Event  m_assosiated_event = Application_2048_Event::NONE;
+  virtual void  keyPressEvent(QKeyEvent *event) override;
 };
 
 class MainMenuLayout: public QVBoxLayout
@@ -81,10 +99,37 @@ public:
   void  DisplayScores(const PlayerRecords &records);
 
 private:
-  std::array<QString, 3>        m_label_headers = { "PlayerName:", "PlayerScore:", "PlayedTime:" };
-  Application_2048             *m_owner_app;
-  QVector<QLabel *>             m_labels;
-  std::unique_ptr<QPushButton>  m_back_button;
-  std::unique_ptr<QGridLayout>  m_label_grid;
-  std::unique_ptr<QHBoxLayout>  m_button_layout;
+  Application_2048                         *m_owner_app;
+  std::array<QString, 3>                    m_label_headers = { "PlayerName:", "PlayerScore:", "PlayedTime:" };
+  QVector<QLabel *>                         m_labels;
+  std::unique_ptr<Application_2048_Button>  m_back_button;
+  std::unique_ptr<QGridLayout>              m_label_grid;
+  std::unique_ptr<QHBoxLayout>              m_button_layout;
+};
+
+class PlayerRegisteryLayout: public QVBoxLayout
+{
+public:
+  PlayerRegisteryLayout(Application_2048 *app);
+
+  const QString  GetInputtedName() const
+  {
+    return m_name_field->toPlainText();
+  }
+
+  // displays an error for inputted name.
+  void  DisplayString(const QString &_string, bool error);
+
+  void  EmptyMessage();
+
+private:
+  Application_2048                           *m_owner_app;
+  std::unique_ptr<Application_2048_TextEdit>  m_name_field;
+  std::unique_ptr<Application_2048_Button>    m_back_button;
+  std::unique_ptr<Application_2048_Button>    m_submit_button;
+  std::unique_ptr<QLabel>                     m_info;
+  std::unique_ptr<QLabel>                     m_message;
+  std::unique_ptr<QHBoxLayout>                m_label_layout;
+  std::unique_ptr<QHBoxLayout>                m_text_edit_layout;
+  std::unique_ptr<QGridLayout>                m_buttons_layout;
 };

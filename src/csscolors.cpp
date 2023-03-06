@@ -24,6 +24,10 @@ void  _2048_CSSColors::Init()
   color_1024           = QtCssColorBuilder::Build({ 225, 250, 0 }, { 98, 70, 95 });
   color_2048           = QtCssColorBuilder::Build({ 245, 245, 0 }, { 98, 70, 95 });
   color_4098_and_upper = QtCssColorBuilder::Build({ 8, 7, 7 }, { 98, 70, 95 });
+
+  // message colors.
+  error_color      = QtCssColorBuilder::Build({ 255, 255, 255 }, { 220, 0, 0 });
+  validation_color = QtCssColorBuilder::Build({ 255, 255, 255 }, { 0, 220, 0 });
 }
 
 QString  _2048_CSSColors::GetBySlotValue(SlotValue value)
@@ -89,15 +93,12 @@ QString  _2048_CSSColors::GetBySlotValue(SlotValue value)
   }
 }
 
-// QString _2048_CSSColors::color_2 = QtCssColorBuilder::Build({94,90,86}, {47,44,40});
-// QString _2048_CSSColors::color_4 = QtCssColorBuilder::Build({93,88,78}, {47,44,40});
-// QString _2048_CSSColors::color_8 = QtCssColorBuilder::Build({95,70,48}, {98,70,95});
-// QString _2048_CSSColors::color_16 = QtCssColorBuilder::Build({96,60,40}, {98,70,95});
-// QString _2048_CSSColors::color_32 = QtCssColorBuilder::Build({97,50,38}, {98,70,95});
-// QString _2048_CSSColors::color_64 = QtCssColorBuilder::Build({97,37,23}, {98,70,95});
-// QString _2048_CSSColors::color_128 = QtCssColorBuilder::Build({93,81,45}, {98,70,95});
-// QString _2048_CSSColors::color_256 = QtCssColorBuilder::Build({93,80,39}, {98,70,95});
-// QString _2048_CSSColors::color_512 = QtCssColorBuilder::Build({93,79,32}, {98,70,95});
-// QString _2048_CSSColors::color_1024 = QtCssColorBuilder::Build({93,78,25}, {98,70,95});
-// QString _2048_CSSColors::color_2048 = QtCssColorBuilder::Build({93,76,18}, {98,70,95});
-// QString _2048_CSSColors::color_4098_and_upper = QtCssColorBuilder::Build({3,3,3}, {98,70,95});
+QString  _2048_CSSColors::GetErrorColor()
+{
+  return error_color;
+}
+
+QString  _2048_CSSColors::GetValidationColor()
+{
+  return validation_color;
+}

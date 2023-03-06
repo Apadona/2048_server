@@ -5,16 +5,20 @@
 
 #include <QMouseEvent>
 
+Application_2048_WidgetData::Application_2048_WidgetData(Application_2048 *app, Application_2048_Event assosiated_event):
+  m_owner_app(app), m_assosiated_event(assosiated_event)
+{
+}
+
 Application_2048_Button::Application_2048_Button():
-  m_owner_app(nullptr),
-  m_assosiated_event(Application_2048_Event::NONE)
+  Application_2048_WidgetData(nullptr, Application_2048_Event::NONE)
 {
   setObjectName("app_2048 Button");
   setText("dull");
 }
 
 Application_2048_Button::Application_2048_Button(Application_2048 *app, QString name, Application_2048_Event event):
-  m_owner_app(app), m_assosiated_event(event)
+  Application_2048_WidgetData(app, event)
 {
   setObjectName("app_2048 Button");
   setText(name);
@@ -28,9 +32,31 @@ void  Application_2048_Button::mousePressEvent(QMouseEvent *e)
   }
 }
 
+Application_2048_TextEdit::Application_2048_TextEdit():
+  Application_2048_WidgetData(nullptr, Application_2048_Event::NONE)
+{
+}
+
+Application_2048_TextEdit::Application_2048_TextEdit(Application_2048 *app):
+  Application_2048_WidgetData(app, Application_2048_Event::CHECK_INPUTTED_NAME)
+{
+}
+
+void  Application_2048_TextEdit::keyPressEvent(QKeyEvent *event)
+{
+  QString  input_char = event->text();
+
+  if (!input_char.isEmpty())
+  {
+    QTextEdit::keyPressEvent(event);
+
+    m_owner_app->HandleAppEvent(Application_2048_Event::CHECK_INPUTTED_NAME);
+  }
+}
+
 MainMenuLayout::MainMenuLayout(Application_2048 *app):
   m_owner_app(app),
-  m_newgame_button(std::make_unique<Application_2048_Button>(m_owner_app, "New Game", Application_2048_Event::START_GAME)),
+  m_newgame_button(std::make_unique<Application_2048_Button>(m_owner_app, "New Game", Application_2048_Event::START_REGISTER_MENU)),
   m_scores_button(std::make_unique<Application_2048_Button>(m_owner_app, "Scores", Application_2048_Event::SHOW_SCORES)),
   m_exit_button(std::make_unique<Application_2048_Button>(m_owner_app, "Exit", Application_2048_Event::EXIT))
 {
@@ -113,5 +139,76 @@ ScoreBoardLayout::ScoreBoardLayout(Application_2048 *app):
 
 void  ScoreBoardLayout::DisplayScores(const PlayerRecords &records)
 {
-  // if( !records.empty() )
+  if (!records.empty())
+  {
+    return;
+  }
+
+  for (auto &i : records)
+  {
+    int     index  = 1;
+    QLabel *label1 = new QLabel(i.m_name);
+    QLabel *label2 = new QLabel(QString::number(i.m_score));
+    QLabel *label3 = new QLabel(i.m_played_time.toString());
+    m_label_grid->addWidget(label1, index, 0);
+    m_label_grid->addWidget(label2, index, 1);
+    m_label_grid->addWidget(label3, index, 2);
+    ++index;
+  }
+}
+
+PlayerRegisteryLayout::PlayerRegisteryLayout(Application_2048 *app):
+  m_owner_app(app),
+  m_name_field(std::make_unique<Application_2048_TextEdit>(m_owner_app)),
+  m_back_button(std::make_unique<Application_2048_Button>(m_owner_app, "back", Application_2048_Event::EXIT)),
+  m_submit_button(std::make_unique<Application_2048_Button>(m_owner_app, "submit", Application_2048_Event::START_GAME)),
+  m_info(std::make_unique<QLabel>("Please Enter your name.")),
+  m_message(std::make_unique<QLabel>()),
+  m_label_layout(std::make_unique<QHBoxLayout>()),
+  m_text_edit_layout(std::make_unique<QHBoxLayout>()),
+  m_buttons_layout(std::make_unique<QGridLayout>())
+{
+  m_name_field->setFixedSize(150, 30);
+
+  m_message->hide();
+  m_message->setAlignment(Qt::AlignCenter);
+
+  m_info->setAlignment(Qt::AlignCenter);
+  m_info->setAutoFillBackground(true);
+
+  m_label_layout->addWidget(m_info.get());
+  m_text_edit_layout->addWidget(m_name_field.get());
+  m_buttons_layout->addWidget(m_back_button.get(), 0, 0);
+  m_buttons_layout->addWidget(m_submit_button.get(), 0, 1);
+  m_buttons_layout->addWidget(m_message.get(), 1, 0);
+
+  addLayout(m_label_layout.get());
+  addLayout(m_text_edit_layout.get());
+  addLayout(m_buttons_layout.get());
+}
+
+void  PlayerRegisteryLayout::DisplayString(const QString &_string, bool error)
+{
+  if (!_string.isEmpty())
+  {
+    m_message->setText(_string);
+    m_message->setAutoFillBackground(true);
+
+    if (error)
+    {
+      m_message->setStyleSheet(_2048_CSSColors::GetErrorColor());
+    }
+    else
+    {
+      m_message->setStyleSheet(_2048_CSSColors::GetValidationColor());
+    }
+
+    m_message->show();
+  }
+}
+
+void  PlayerRegisteryLayout::EmptyMessage()
+{
+  m_message->setText(QString::Null());
+  m_message->hide();
 }

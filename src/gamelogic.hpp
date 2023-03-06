@@ -1,11 +1,12 @@
 #pragma once
 
-#include "qobject.h"
-#include "qobjectdefs.h"
+#include <qobject.h>
+#include <qobjectdefs.h>
 #include <cstdint>
 
 #include <QEvent>
 #include <QDebug>
+#include <QTime>
 #include <QtGlobal>
 
 #include <iostream> // for debug test. temporary.
@@ -139,4 +140,6 @@ private:
 private:
   Slots      m_slots;
   GameScore  m_score;
+  QTime      played_time;
+  QString    player_name;
 };

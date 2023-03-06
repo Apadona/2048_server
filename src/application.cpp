@@ -5,11 +5,15 @@
 
 Application_2048::Application_2048(int &argc, char **argv):
   QApplication(argc, argv), m_window(nullptr, this), m_mainmenu_layout(std::make_unique<MainMenuLayout>(this)),
-  m_game_layout(std::make_unique<GameLayout>(this)), m_scoreboard_layout(std::make_unique<ScoreBoardLayout>(this))
+  m_game_layout(std::make_unique<GameLayout>(this)), m_scoreboard_layout(std::make_unique<ScoreBoardLayout>(this)),
+  m_register_layout(std::make_unique<PlayerRegisteryLayout>(this))
 {
-  m_window.m_main_menu_screen->setLayout(m_mainmenu_layout.get());
-  m_window.m_score_screen->setLayout(m_scoreboard_layout.get());
-  m_window.m_game_screen->setLayout(m_game_layout.get());
+  m_window.AddLayout(m_mainmenu_layout.get(), Application_2048_View::MAIN_MENU);
+  m_window.AddLayout(m_register_layout.get(), Application_2048_View::REGISTER);
+  m_window.AddLayout(m_game_layout.get(), Application_2048_View::GAME);
+  m_window.AddLayout(m_scoreboard_layout.get(), Application_2048_View::SCORES);
+
+  // m_players_datas = ReadPlayerRecords();
 
   _2048_CSSColors::Init();
 }
@@ -41,10 +45,20 @@ void  Application_2048::HandleAppEvent(Application_2048_Event event)
 
     break;
 
+  case Application_2048_Event::START_REGISTER_MENU:
+
+    if (m_state == Application_2048_State::MAIN_MENU)
+    {
+      StartRegisterMenu();
+    }
+
+    break;
+
   case Application_2048_Event::START_GAME:
 
-    if (m_state != Application_2048_State::GAME)
+    if (m_state == Application_2048_State::REGISTER_MENU)
     {
+      m_register_layout->EmptyMessage();
       StartGame();
     }
 
@@ -58,6 +72,25 @@ void  Application_2048::HandleAppEvent(Application_2048_Event event)
     }
 
     break;
+
+  case Application_2048_Event::CHECK_INPUTTED_NAME:
+
+    if (m_state == Application_2048_State::REGISTER_MENU)
+    {
+      // TODO: must check against player database.
+      QString  name = m_register_layout->GetInputtedName();
+
+      if (CheckIfPlayerRecordExists(name))
+      {
+        m_register_layout->DisplayString(name + " is already submitted", true);
+      }
+      else
+      {
+        m_register_layout->DisplayString(name + " can be submitted", false);
+      }
+
+      break;
+    }
 
   case Application_2048_Event::SHIFT_LEFT:
 
@@ -133,6 +166,11 @@ void  Application_2048::HandleAppEvent(Application_2048_Event event)
     {
       DisplayMainMenu();
     }
+    else if (m_state == Application_2048_State::REGISTER_MENU)
+    {
+      m_register_layout->EmptyMessage();
+      DisplayMainMenu();
+    }
 
     break;
   }
@@ -141,6 +179,29 @@ void  Application_2048::HandleAppEvent(Application_2048_Event event)
 void  Application_2048::UpdateGameScreen()
 {
   m_game_layout->DisplaySlotValues(m_game.GetSlots());
+}
+
+bool  Application_2048::CheckIfPlayerRecordExists(const QString &player_name)
+{
+  if (!player_name.isEmpty())
+  {
+    if (m_players_datas.has_value())
+    {
+      auto &player_records = m_players_datas.value();
+
+      for (auto &i : player_records)
+      {
+        if (i.m_name == player_name)
+        {
+          return false;
+        }
+      }
+
+      return true;
+    }
+  }
+
+  return false;
 }
 
 void  Application_2048::DisplayMainMenu()
@@ -161,5 +222,11 @@ void  Application_2048::DisplayScores()
 {
   m_state = Application_2048_State::SCORES_MENU;
   m_window.DisplayView(Application_2048_View::SCORES);
-  // PlayerRecords  player_records = ReadPlayerRecords();
+  // m_scoreboard_layout->DisplayScores(m_player_datas);
+}
+
+void  Application_2048::StartRegisterMenu()
+{
+  m_state = Application_2048_State::REGISTER_MENU;
+  m_window.DisplayView(Application_2048_View::REGISTER);
 }

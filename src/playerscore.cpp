@@ -4,12 +4,12 @@
 #include <QTextStream>
 
 PlayerRecord::PlayerRecord():
-  m_name("Unknown"), m_score(0)
+  m_name("Unknown"), m_score(0), m_played_time(QTime::currentTime())
 {
 }
 
 PlayerRecord::PlayerRecord(QString name, quint32 score, const QTime &time):
-  m_name(name), m_score(score)
+  m_name(name), m_score(score), m_played_time(time)
 {
 }
 
@@ -27,8 +27,9 @@ PlayerRecord& PlayerRecord::operator=(const PlayerRecord &other)
 {
   if (this != &other)
   {
-    m_name  = other.m_name;
-    m_score = other.m_score;
+    m_name        = other.m_name;
+    m_score       = other.m_score;
+    m_played_time = other.m_played_time;
   }
 
   return *this;
@@ -38,10 +39,13 @@ PlayerRecord& PlayerRecord::operator=(PlayerRecord &&other)
 {
   if (this != &other)
   {
-    m_name  = std::move(other.m_name);
-    m_score = other.m_score;
+    m_name        = std::move(other.m_name);
+    m_score       = other.m_score;
+    m_played_time = std::move(other.m_played_time);
 
     other.m_score = 0;
+    // Qt says it is deprecated.
+// other.m_played_time.restart();
   }
 
   return *this;
