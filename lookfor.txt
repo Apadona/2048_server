@@ -1,4 +1,11 @@
 change a file's mods and attributes.
-Doxygen
-git merge
-qt + OpenGL
+add the ability to display player scores properly.
+custom thread pool implemention
+familiarise with Qt threading library.
+using PostGRES ( PSQL ) as qt plugin.
+see javidx9 networking video.
+familiarise with Qt networking library.
+implement the second task.
+implement the third task.
+#improve the 2048 game algorithm.
+#implement animation in 2048.
