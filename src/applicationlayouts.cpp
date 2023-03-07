@@ -48,6 +48,13 @@ void  Application_2048_TextEdit::keyPressEvent(QKeyEvent *event)
 
   if (!input_char.isEmpty())
   {
+    QString  written_text = toPlainText();
+
+    if ((written_text.size() >= PlayerRegisteryLayout::MaxPlayerNameLength) && (event->key() != Qt::Key_Backspace))
+    {
+      return;
+    }
+
     QTextEdit::keyPressEvent(event);
 
     m_owner_app->HandleAppEvent(Application_2048_Event::CHECK_INPUTTED_NAME);
@@ -164,27 +171,30 @@ PlayerRegisteryLayout::PlayerRegisteryLayout(Application_2048 *app):
   m_submit_button(std::make_unique<Application_2048_Button>(m_owner_app, "submit", Application_2048_Event::START_GAME)),
   m_info(std::make_unique<QLabel>("Please Enter your name.")),
   m_message(std::make_unique<QLabel>()),
-  m_label_layout(std::make_unique<QHBoxLayout>()),
+  m_info_layout(std::make_unique<QHBoxLayout>()),
+  m_message_layout(std::make_unique<QHBoxLayout>()),
   m_text_edit_layout(std::make_unique<QHBoxLayout>()),
-  m_buttons_layout(std::make_unique<QGridLayout>())
+  m_buttons_layout(std::make_unique<QHBoxLayout>())
 {
   m_name_field->setFixedSize(150, 30);
 
   m_message->hide();
   m_message->setAlignment(Qt::AlignCenter);
+  m_message->setAutoFillBackground(true);
 
   m_info->setAlignment(Qt::AlignCenter);
   m_info->setAutoFillBackground(true);
 
-  m_label_layout->addWidget(m_info.get());
+  m_info_layout->addWidget(m_info.get());
+  m_message_layout->addWidget(m_message.get());
   m_text_edit_layout->addWidget(m_name_field.get());
-  m_buttons_layout->addWidget(m_back_button.get(), 0, 0);
-  m_buttons_layout->addWidget(m_submit_button.get(), 0, 1);
-  m_buttons_layout->addWidget(m_message.get(), 1, 0);
+  m_buttons_layout->addWidget(m_back_button.get());
+  m_buttons_layout->addWidget(m_submit_button.get());
 
-  addLayout(m_label_layout.get());
+  addLayout(m_info_layout.get());
   addLayout(m_text_edit_layout.get());
   addLayout(m_buttons_layout.get());
+  addLayout(m_message_layout.get());
 }
 
 void  PlayerRegisteryLayout::DisplayString(const QString &_string, bool error)

@@ -80,7 +80,11 @@ void  Application_2048::HandleAppEvent(Application_2048_Event event)
       // TODO: must check against player database.
       QString  name = m_register_layout->GetInputtedName();
 
-      if (CheckIfPlayerRecordExists(name))
+      if (name.isEmpty())
+      {
+        m_register_layout->EmptyMessage();
+      }
+      else if (CheckIfPlayerRecordExists(name))
       {
         m_register_layout->DisplayString(name + " is already submitted", true);
       }

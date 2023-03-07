@@ -110,6 +110,8 @@ private:
 class PlayerRegisteryLayout: public QVBoxLayout
 {
 public:
+  static constexpr quint32  MaxPlayerNameLength = 20;
+
   PlayerRegisteryLayout(Application_2048 *app);
 
   const QString  GetInputtedName() const
@@ -129,7 +131,8 @@ private:
   std::unique_ptr<Application_2048_Button>    m_submit_button;
   std::unique_ptr<QLabel>                     m_info;
   std::unique_ptr<QLabel>                     m_message;
-  std::unique_ptr<QHBoxLayout>                m_label_layout;
+  std::unique_ptr<QHBoxLayout>                m_info_layout;
+  std::unique_ptr<QHBoxLayout>                m_message_layout;
   std::unique_ptr<QHBoxLayout>                m_text_edit_layout;
-  std::unique_ptr<QGridLayout>                m_buttons_layout;
+  std::unique_ptr<QHBoxLayout>                m_buttons_layout;
 };
