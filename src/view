@@ -1,0 +1,64 @@
+#ifndef VIEW_H
+#define VIEW_H
+
+#include <QLayout>
+#include <QWidget>
+#include <QStackedWidget>
+
+#include <vector>
+#include <memory>
+#include <map>
+
+using LayoutContextId = quint32;
+using LayoutElementId = quint32;
+
+class QApplication;
+
+class View
+{
+public:
+    View( QApplication* app );
+
+    ~View();
+
+    void SetFocus();
+
+    template<typename... Widgets>
+    void AddLayout( LayoutContextId id, QLayout* layout, Widgets&& ... widgets );
+
+    template<typename... Widgets>
+    LayoutContextId AddLayout( QLayout* layout, Widgets&& ... widgets );
+
+    void RemoveLayout(QLayout* layout);
+    void RemoveLayout( LayoutElementId id );
+
+    void ShowContext(LayoutContextId layout);
+    void HideContext(LayoutContextId layout);
+
+    inline QWidget* AsQWidget() { return m_stacked_widget.get(); }
+    inline operator QWidget*() { return AsQWidget(); }
+
+protected:
+    virtual bool OnCreate() = 0;
+    virtual bool OnFocus() = 0;
+    virtual bool OnClose() = 0;
+private:
+    struct LayoutElements
+    {
+      std::vector<QWidget*> m_widgets;
+      std::vector<QLayout*> m_layouts;
+    };
+
+    struct ViewContext
+    {
+        LayoutElements m_elements;
+        std::unique_ptr<QLayout*> m_outer_layout;
+        std::unique_ptr<QWidget*> m_main_widget;
+    };
+
+    std::map<LayoutContextId,ViewContext> m_panels;
+    std::unique_ptr<QStackedWidget> m_stacked_widget;
+    QApplication* m_owner_app;
+};
+
+#endif // VIEW_H
