@@ -10,25 +10,21 @@
 
 struct PlayerRecord
 {
-  PlayerRecord();
+    PlayerRecord();
 
-  PlayerRecord(QString name, quint32 score, const QTime &time);
+    PlayerRecord(QString name, quint32 score, const QTime &time);
 
-  PlayerRecord(const PlayerRecord &other);
+    PlayerRecord(const PlayerRecord &other);
 
-  PlayerRecord(PlayerRecord &&other);
+    PlayerRecord(PlayerRecord &&other);
 
-  PlayerRecord& operator=(const PlayerRecord &other);
+    PlayerRecord& operator=(const PlayerRecord &other);
 
-  PlayerRecord& operator=(PlayerRecord &&other);
+    PlayerRecord& operator=(PlayerRecord &&other);
 
-  QString  m_name;
-  quint32  m_score;
-  QTime    m_played_time;
+    QString  m_name;
+    quint32  m_score;
+    QTime    m_played_time;
 };
 
 using PlayerRecords = std::vector<PlayerRecord>;
-
-std::optional<PlayerRecords>  ReadPlayerRecords();
-
-void  WritePlayerRecords(const PlayerRecords &player_records);
