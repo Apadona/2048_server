@@ -5,7 +5,7 @@
 
 enum class DataBaseConnectionStatus
 {
-    OK,                         // connection stablished.
+    OK,                                                     // connection stablished.
     AUTH_OK,
     MADE,
     STARTED,
@@ -19,7 +19,47 @@ enum class DataBaseConnectionStatus
     SSL_STARTUP,
     NEEDED,
     SETENV,
-    NOT_SETUP                   // invalid state. connection has not been made yet.
+    NOT_SETUP                                               // invalid state. connection has not been made yet.
+};
+
+enum class QueryResultType
+{
+};
+
+class PGSQLResult
+{
+public:
+    PGSQLResult() = default;
+
+    ~PGSQLResult();
+
+    PGSQLResult(const PGSQLResult &other) = delete;
+
+    PGSQLResult(PGSQLResult &&other);
+
+    PGSQLResult& operator=(const PGSQLResult &other) = delete;
+
+    PGSQLResult& operator=(PGSQLResult &&other);
+
+    inline operator bool() const
+    {
+        return result != nullptr;
+    }
+    inline bool  operator!() const
+    {
+        return !bool(*this);
+    }
+
+    inline quint32  GetCount()
+    {
+    }
+
+    inline quint32  GetColumnsCount()
+    {
+    }
+
+private:
+    PGresult *result;
 };
 
 class PGConnectionWrapper
@@ -45,6 +85,8 @@ public:
     DataBaseConnectionStatus  Connect(const QString &database, const QString &user_name, const QString &user_password = { });
 
     DataBaseConnectionStatus  Connect(const QString &request);
+
+    PGSQLResult  ExecuteSQL(const QString &str);
 
     inline const std::string  GetError() const
     {
@@ -78,5 +120,7 @@ private:
 
 private:
     PGconn                   *m_connection = nullptr;
-    DataBaseConnectionStatus  m_status     = DataBaseConnectionStatus::NOT_SETUP;
+    QString                   m_user_name;
+    QString                   m_user_password;
+    DataBaseConnectionStatus  m_status = DataBaseConnectionStatus::NOT_SETUP;
 };

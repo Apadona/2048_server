@@ -60,6 +60,10 @@ DataBaseConnectionStatus  PGConnectionWrapper::Connect(const QString &request)
     return status;
 }
 
+PGSQLResult  PGConnectionWrapper::ExecuteSQL(const QString &str)
+{
+}
+
 DataBaseConnectionStatus  PGConnectionWrapper::ConvertStatus(PGconn *connection) const
 {
     auto  status = PQstatus(connection);
@@ -69,58 +73,44 @@ DataBaseConnectionStatus  PGConnectionWrapper::ConvertStatus(PGconn *connection)
     case CONNECTION_OK:
 
         return DataBaseConnectionStatus::OK;
-        break;
     case CONNECTION_AUTH_OK:
 
         return DataBaseConnectionStatus::AUTH_OK;
-        break;
     case CONNECTION_MADE:
 
         return DataBaseConnectionStatus::MADE;
-        break;
     case CONNECTION_STARTED:
 
         return DataBaseConnectionStatus::STARTED;
-        break;
     case CONNECTION_BAD:
 
         return DataBaseConnectionStatus::BAD;
-        break;
     case CONNECTION_AWAITING_RESPONSE:
 
         return DataBaseConnectionStatus::AWAITING_RESPONSE;
-        break;
     case CONNECTION_CHECK_STANDBY:
 
         return DataBaseConnectionStatus::CHECK_STANDBY;
-        break;
     case CONNECTION_CHECK_WRITABLE:
 
         return DataBaseConnectionStatus::CHECK_WRITABLE;
-        break;
     case CONNECTION_CHECK_TARGET:
 
         return DataBaseConnectionStatus::CHECK_TARGET;
-        break;
     case CONNECTION_CONSUME:
 
         return DataBaseConnectionStatus::CONSUME;
-        break;
     case CONNECTION_GSS_STARTUP:
 
         return DataBaseConnectionStatus::GSS_STARTUP;
-        break;
     case CONNECTION_SSL_STARTUP:
 
         return DataBaseConnectionStatus::SSL_STARTUP;
-        break;
     case CONNECTION_NEEDED:
 
         return DataBaseConnectionStatus::NEEDED;
-        break;
     case CONNECTION_SETENV:
 
         return DataBaseConnectionStatus::SETENV;
-        break;
     }
 }

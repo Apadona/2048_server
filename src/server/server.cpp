@@ -3,8 +3,7 @@
 #include <utils/logger.hpp>
 
 Server_2048::Server_2048(int &argc, char **argv):
-    QApplication(argc, argv),
-    m_database(nullptr)
+    QApplication(argc, argv)
 {
     Start();
 }
@@ -15,12 +14,10 @@ Server_2048::~Server_2048()
 
 qint32  Server_2048::Start()
 {
-    m_database.Connect("user=barkhordar dbname=game_2048");
+    m_database.Connect("barkhordar", "game_2ssd048");
 
-    if (m_database.GetConnectionStatus() == DataBaseConnectionStatus::BAD)
+    if (!m_database)
     {
-        LOG_FATAL("could not connect to the server! Reason:", m_database.GetError());
-
         return -1;
     }
 

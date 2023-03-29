@@ -1,8 +1,8 @@
 #include "server.hpp"
 
-int main( int argc, char** argv )
+int  main(int argc, char **argv)
 {
-    Server_2048 server(argc,argv);
+    Server_2048  server(argc, argv);
 
     server.Start();
 

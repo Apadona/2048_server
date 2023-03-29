@@ -3,6 +3,7 @@
 #include <QApplication>
 
 #include "postgres_abstraction.hpp"
+#include "database.hpp"
 
 #include <shared/playerscore.hpp>
 
@@ -25,12 +26,6 @@ public:
 
     qint32  Start();
 
-    void  StablishConnection();
-
 private:
-    void  ReadAllPlayerRecords();
-
-private:
-    PGConnectionWrapper  m_database;
-    PlayerRecords        m_records;
+    DataBase_2048  m_database;
 };
