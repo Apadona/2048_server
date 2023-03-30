@@ -2,11 +2,101 @@
 
 #include <utils/logger.hpp>
 
+PGSQLResult::PGSQLResult(PGresult *result)
+{
+    if (result)
+    {
+        if (auto status = ConvertStatus(result); status != QueryResultType::FATAL_ERROR)
+        {
+            m_result = result;
+            SetStatus(status);
+        }
+    }
+}
+
+PGSQLResult::PGSQLResult(PGSQLResult &&other)
+{
+    *this = std::forward<PGSQLResult>(other);
+}
+
+PGSQLResult& PGSQLResult::operator=(PGSQLResult &&other)
+{
+    if (this != &other)
+    {
+        m_result       = other.m_result;
+        m_query_result = other.m_query_result;
+
+        other.m_result       = nullptr;
+        other.m_query_result = QueryResultType::NONE;
+    }
+
+    return *this;
+}
+
+PGSQLResult::~PGSQLResult()
+{
+    ClearQuery();
+}
+
+void  PGSQLResult::ClearQuery()
+{
+    PQclear(m_result);
+}
+
+QueryResultType  PGSQLResult::ConvertStatus(PGresult *postgres_query_result)
+{
+    auto  status = PQresultStatus(postgres_query_result);
+
+    switch (status)
+    {
+    case PGRES_EMPTY_QUERY:
+
+        return QueryResultType::EMPTY_QUERY;
+    case PGRES_COMMAND_OK:
+
+        return QueryResultType::COMMAND_OK;
+    case PGRES_TUPLES_OK:
+
+        return QueryResultType::TUPLES_OK;
+    case PGRES_COPY_OUT:
+
+        return QueryResultType::COPY_OUT;
+    case PGRES_COPY_IN:
+
+        return QueryResultType::COPY_IN;
+    case PGRES_BAD_RESPONSE:
+
+        return QueryResultType::BAD_RESPONSE;
+    case PGRES_NONFATAL_ERROR:
+
+        return QueryResultType::NONFATAL_ERROR;
+    case PGRES_FATAL_ERROR:
+
+        return QueryResultType::EMPTY_QUERY;
+    case PGRES_COPY_BOTH:
+
+        return QueryResultType::COPY_BOTH;
+    case PGRES_SINGLE_TUPLE:
+
+        return QueryResultType::SINGLE_TUPLE;
+    case PGRES_PIPELINE_SYNC:
+
+        return QueryResultType::PIPELINE_SYNC;
+    case PGRES_PIPELINE_ABORTED:
+
+        return QueryResultType::PIPELINE_ABORTED;
+    }
+}
+
 PGConnectionWrapper::PGConnectionWrapper(PGconn *connection)
 {
     if (connection)
     {
         m_connection = connection;
+        m_version    = PQserverVersion(connection);
+        m_user_name  = PQuser(connection);
+        m_user_name  = PQdb(connection);
+        m_user_name  = PQpass(connection);
     }
 }
 
@@ -62,11 +152,15 @@ DataBaseConnectionStatus  PGConnectionWrapper::Connect(const QString &request)
 
 PGSQLResult  PGConnectionWrapper::ExecuteSQL(const QString &str)
 {
+    auto         _result = PQexec(m_connection, str.toLatin1());
+    PGSQLResult  result(_result);
+
+    return result;
 }
 
-DataBaseConnectionStatus  PGConnectionWrapper::ConvertStatus(PGconn *connection) const
+DataBaseConnectionStatus  PGConnectionWrapper::ConvertStatus(PGconn *postgres_connection) const
 {
-    auto  status = PQstatus(connection);
+    auto  status = PQstatus(postgres_connection);
 
     switch (status)
     {

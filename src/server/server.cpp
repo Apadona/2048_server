@@ -14,12 +14,14 @@ Server_2048::~Server_2048()
 
 qint32  Server_2048::Start()
 {
-    m_database.Connect("barkhordar", "game_2ssd048");
+    m_database.Connect("barkhordar", "game_2048");
 
     if (!m_database)
     {
         return -1;
     }
+
+    m_database.GetRecords();
 
     return 0;
 }

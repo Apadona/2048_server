@@ -2,10 +2,13 @@
 
 #include <postgresql/libpq-fe.h>
 #include <QString>
+#include <type_traits>
+#include <string>
+#include <iterator>
 
 enum class DataBaseConnectionStatus
 {
-    OK,                                                     // connection stablished.
+    OK,                                                                                                         // connection stablished.
     AUTH_OK,
     MADE,
     STARTED,
@@ -19,17 +22,70 @@ enum class DataBaseConnectionStatus
     SSL_STARTUP,
     NEEDED,
     SETENV,
-    NOT_SETUP                                               // invalid state. connection has not been made yet.
+    NOT_SETUP,                                                                                                  // invalid state. connection has not been made
+                                                                                                                // yet.
+
+    NONE
 };
 
 enum class QueryResultType
 {
+    EMPTY_QUERY = 0,
+
+    /* empty query string was executed
+     */
+    COMMAND_OK,
+
+    /* a query command that doesn't return
+     * anything was executed properly by the
+     * backend */
+    TUPLES_OK,
+
+    /* a query command that returns tuples was
+     * executed properly by the backend, PGresult
+     * contains the result tuples */
+    COPY_OUT,
+
+    /* Copy Out data transfer in progress
+     */
+    COPY_IN,
+
+    /* Copy In data transfer in progress
+     */
+    BAD_RESPONSE,
+
+    /* an unexpected response was recv'd from the
+     * backend */
+    NONFATAL_ERROR,                                                                                                               /* notice or warning message */
+    FATAL_ERROR,                                                                                                                  /* query failed */
+    COPY_BOTH,
+
+    /* Copy In/Out data transfer in progress
+     */
+    SINGLE_TUPLE,
+
+    /* single tuple from larger resultset
+     */
+    PIPELINE_SYNC,
+
+    /* pipeline synchronization point
+     */
+    PIPELINE_ABORTED,
+
+    /* Command didn't run because of an abort
+     */
+
+    NONE
 };
 
 class PGSQLResult
 {
 public:
     PGSQLResult() = default;
+
+    PGSQLResult(PGresult *result);
+
+// PGSQLResult(const QString &query);
 
     ~PGSQLResult();
 
@@ -41,25 +97,42 @@ public:
 
     PGSQLResult& operator=(PGSQLResult &&other);
 
+    std::string::iterator  begin();
+
+    std::string::iterator  end();
+
+    inline QueryResultType  GetStatus() const
+    {
+        return m_query_result;
+    }
+
     inline operator bool() const
     {
-        return result != nullptr;
+        return m_result != nullptr && GetStatus() != QueryResultType::EMPTY_QUERY;
     }
     inline bool  operator!() const
     {
         return !bool(*this);
     }
 
-    inline quint32  GetCount()
+    inline quint32  GetRows() const
     {
+        return PQntuples(m_result);
     }
 
-    inline quint32  GetColumnsCount()
+    void  ClearQuery();
+
+private:
+    QueryResultType  ConvertStatus(PGresult *postgres_status);
+
+    inline void  SetStatus(QueryResultType query_result)
     {
+        m_query_result = query_result;
     }
 
 private:
-    PGresult *result;
+    QueryResultType  m_query_result = QueryResultType::NONE;
+    PGresult        *m_result       = nullptr;
 };
 
 class PGConnectionWrapper
@@ -88,6 +161,9 @@ public:
 
     PGSQLResult  ExecuteSQL(const QString &str);
 
+// template<typename ... Args>
+// PGSQLResult  ExecuteSQL(const QString &Str, Args && ... args);
+
     inline const std::string  GetError() const
     {
         char *message = PQerrorMessage(m_connection);
@@ -95,7 +171,8 @@ public:
         return message;
     }
 
-    inline operator bool() const {
+    inline operator bool() const
+    {
         return IsConnected();
     }
 
@@ -106,7 +183,7 @@ public:
 
     inline bool  IsConnected() const
     {
-        return m_connection != nullptr;
+        return m_connection != nullptr && GetConnectionStatus() != DataBaseConnectionStatus::BAD;
     }
 
 private:
@@ -116,11 +193,12 @@ private:
     }
 
     // converts a postgresql ConnStatusType to our own DataBaseConnectionStatus.
-    DataBaseConnectionStatus  ConvertStatus(PGconn *connection) const;
+    DataBaseConnectionStatus  ConvertStatus(PGconn *postgres_connection) const;
 
 private:
     PGconn                   *m_connection = nullptr;
+    qint32                    m_version;
     QString                   m_user_name;
     QString                   m_user_password;
-    DataBaseConnectionStatus  m_status = DataBaseConnectionStatus::NOT_SETUP;
+    DataBaseConnectionStatus  m_status = DataBaseConnectionStatus::NONE;
 };
