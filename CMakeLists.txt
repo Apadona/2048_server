@@ -11,10 +11,41 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# if ON, target will be build for 64-bit systems, OFF and target will be build for 32-bit systems.
+option( architecture_64 "select build architecture (32 or 64) bit." ON )
+
+set( CMAKE_PREFIX_PATH "/opt/Qt/5.15.2/gcc_64/lib/cmake" )
+
+set( build_directory "${CMAKE_SOURCE_DIR}" )
+set( client_include_directory "src" )
+set( server_include_directory "src" )
+
 set(RELEASE_COMPILE_FLAGS "-O2 -Wall -Wextra -s")
 set(DEBUG_COMPILE_FLAGS "-g3 -Wall -Wextra")
 
-set( CMAKE_PREFIX_PATH "/opt/Qt/5.15.2/gcc_64/lib/cmake" )
+if( WIN32 )
+    set( os_title "windows" )
+
+elseif( UNIX )
+    if( CMAKE_SYSTEM_NAME STREQUAL "Linux" )
+        set( os_title "linux" )
+
+    else()
+        message( FATAL_ERROR "UNIX platform other than Linux detected!\n" )
+    endif()
+
+else()
+    message( FATAL_ERROR "only windows and linux are currently supported!\n" )
+endif()
+
+if( architecture_64 )
+    set( target_architecture "x64" )
+else()
+    set( target_architecture "x32" )
+endif()
+
+# directories for the executables/libraries that we are building.
+set( executable_directory "${build_directory}/bin/${CMAKE_BUILD_TYPE}/${os_title}/${target_architecture}" )
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Network)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Network)
@@ -63,20 +94,17 @@ target_link_libraries(2048_client PRIVATE
                       Qt${QT_VERSION_MAJOR}::Network
                       )
 
-target_include_directories(2048_client PRIVATE "src")
+target_include_directories(2048_client PRIVATE "${client_include_directory}")
 
 set_target_properties(2048_client PROPERTIES
-    MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
-    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
-    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-    MACOSX_BUNDLE TRUE
     WIN32_EXECUTABLE TRUE
+    RUNTIME_OUTPUT_DIRECTORY "${executable_directory}"
 )
 
 if( CMAKE_BUILD_TYPE STREQUAL "Release" )
     target_compile_options( 2048_client PRIVATE
                             ${RELEASE_COMPILE_OPTIONS}
-)
+                          )
 else()
     target_compile_options( 2048_client PRIVATE
                             ${DEBUG_COMPILE_OPTIONS})
@@ -90,14 +118,11 @@ target_link_libraries(2048_server PRIVATE
                       )
 
 
-target_include_directories(2048_server PRIVATE "src")
+target_include_directories(2048_server PRIVATE "${server_include_directory}")
 
 set_target_properties(2048_server PROPERTIES
-    MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
-    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
-    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-    MACOSX_BUNDLE TRUE
     WIN32_EXECUTABLE TRUE
+    RUNTIME_OUTPUT_DIRECTORY "${executable_directory}"
 )
 
 if( CMAKE_BUILD_TYPE STREQUAL "Release" )
