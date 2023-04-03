@@ -32,10 +32,9 @@ bool  DataBase_2048::IsEmpty() const
 
 void  DataBase_2048::FetchRecordsFromDataBase()
 {
-    auto  sql_result = m_connection.ExecuteSQL("SELECT * FROM player_database");
+    auto  sql_result = m_connection.ExecuteSQL("SELECT * FROM player_records");
 
     if (sql_result)
     {
-// for( auto str : sql_result )
     }
 }

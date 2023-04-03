@@ -1,4 +1,4 @@
-#include "playerscore.hpp"
+#include "shared/player_record.hpp"
 #include <utils/logger.hpp>
 
 #include <QTextStream>

@@ -152,10 +152,9 @@ DataBaseConnectionStatus  PGConnectionWrapper::Connect(const QString &request)
 
 PGSQLResult  PGConnectionWrapper::ExecuteSQL(const QString &str)
 {
-    auto         _result = PQexec(m_connection, str.toLatin1());
-    PGSQLResult  result(_result);
+    auto  _result = PQexec(m_connection, str.toLatin1());
 
-    return result;
+    return PGSQLResult(_result);
 }
 
 DataBaseConnectionStatus  PGConnectionWrapper::ConvertStatus(PGconn *postgres_connection) const

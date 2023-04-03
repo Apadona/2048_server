@@ -4,7 +4,7 @@
 #include "gamewindow.hpp"
 #include "applicationlayouts.hpp"
 #include "applicationevents.hpp"
-#include <shared/playerscore.hpp>
+#include <shared/player_record.hpp>
 
 #include <QApplication>
 

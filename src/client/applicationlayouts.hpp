@@ -1,6 +1,6 @@
 #pragma once
 
-#include <shared/playerscore.hpp>
+#include <shared/player_record.hpp>
 #include "gamelogic.hpp"
 #include "applicationevents.hpp"
 

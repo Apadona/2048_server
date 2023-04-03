@@ -5,7 +5,7 @@
 #include "postgres_abstraction.hpp"
 #include "database.hpp"
 
-#include <shared/playerscore.hpp>
+#include <shared/player_record.hpp>
 
 class Server_2048: public QApplication
 {
