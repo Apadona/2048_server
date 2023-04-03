@@ -51,6 +51,16 @@ PlayerRecord& PlayerRecord::operator=(PlayerRecord &&other)
     return *this;
 }
 
+bool  PlayerRecord::operator<(const PlayerRecord &other) const
+{
+    return m_score < other.m_score;
+}
+
+bool  PlayerRecord::operator==(const PlayerRecord &other) const
+{
+    return m_name == other.m_name;
+}
+
 std::optional<PlayerRecords>  ReadPlayerRecords()
 {
     QFile  file("player_scores.dat");
@@ -112,4 +122,11 @@ void  WritePlayerRecords(const PlayerRecords &records)
     {
         writer << i.m_name << ' ' << i.m_score << '\n';
     }
+}
+
+std::ostringstream& operator<<(std::ostringstream &out, const PlayerRecord &player_record)
+{
+    out << player_record.m_name.toStdString() << ' ' << player_record.m_score;
+
+    return out;
 }

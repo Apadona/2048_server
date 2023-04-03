@@ -6,31 +6,31 @@ bool          Logger::m_initialized(false);
 
 bool  Logger::Init()
 {
-  // it only has to be initialized once.
-  if (!IsInitialized())
-  {
-    try
+    // it only has to be initialized once.
+    if (!IsInitialized())
     {
-      m_stdout.copyfmt(std::cout);
-      m_stdout.clear(std::cout.rdstate());
-      m_stdout.basic_ios<char>::rdbuf(std::cout.rdbuf());
+        try
+        {
+            m_stdout.copyfmt(std::cout);
+            m_stdout.clear(std::cout.rdstate());
+            m_stdout.basic_ios<char>::rdbuf(std::cout.rdbuf());
+        }
+        catch (...)
+        {
+            std::cerr << "cannot initialize logger....";
+
+            return m_initialized;                               // which is false.
+        }
+
+        ;
+
+        m_initialized = true;
     }
-    catch (...)
-    {
-      std::cerr << "cannot initialize logger....";
 
-      return m_initialized; // which is false.
-    }
-
-    ;
-
-    m_initialized = true;
-  }
-
-  return m_initialized;
+    return m_initialized;
 }
 
 bool  Logger::IsInitialized()
 {
-  return m_initialized;
+    return m_initialized;
 }

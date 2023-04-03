@@ -88,6 +88,11 @@ QueryResultType  PGSQLResult::ConvertStatus(PGresult *postgres_query_result)
     }
 }
 
+QString  PGSQLResult::Get(quint32 row, quint32 column)
+{
+    return PQgetvalue(m_result, row, column);
+}
+
 PGConnectionWrapper::PGConnectionWrapper(PGconn *connection)
 {
     if (connection)

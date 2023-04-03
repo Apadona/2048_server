@@ -8,7 +8,7 @@
 
 enum class DataBaseConnectionStatus
 {
-    OK,                                                                                                         // connection stablished.
+    OK,                                                                                                             // connection stablished.
     AUTH_OK,
     MADE,
     STARTED,
@@ -22,8 +22,8 @@ enum class DataBaseConnectionStatus
     SSL_STARTUP,
     NEEDED,
     SETENV,
-    NOT_SETUP,                                                                                                  // invalid state. connection has not been made
-                                                                                                                // yet.
+    NOT_SETUP,                                                                                                      // invalid state. connection has not been made
+                                                                                                                    // yet.
 
     NONE
 };
@@ -56,8 +56,11 @@ enum class QueryResultType
 
     /* an unexpected response was recv'd from the
      * backend */
-    NONFATAL_ERROR,                                                                                                               /* notice or warning message */
-    FATAL_ERROR,                                                                                                                  /* query failed */
+    NONFATAL_ERROR,
+
+    /* notice or warning message
+     */
+    FATAL_ERROR,                                                                                                                      /* query failed */
     COPY_BOTH,
 
     /* Copy In/Out data transfer in progress
@@ -96,6 +99,8 @@ public:
     PGSQLResult& operator=(const PGSQLResult &other) = delete;
 
     PGSQLResult& operator=(PGSQLResult &&other);
+
+    QString  Get(quint32 row, quint32 column);
 
     std::string::iterator  begin();
 

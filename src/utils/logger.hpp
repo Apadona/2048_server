@@ -45,9 +45,7 @@ public:
     static void  Log(First &&first, Args && ... args)
     {
         std::scoped_lock<std::mutex>  lock(m_mutex);
-        std::string                   message;
-
-        message += AppendStrings(std::forward<First>(first), std::forward<Args>(args)...);
+        std::string                   message = AppendStrings(std::forward<First>(first), std::forward<Args>(args)...);
 
         if (message.empty())
         {
@@ -71,16 +69,16 @@ private:
     LOG_FATAL (message)
 
 #define LOG_INFO(...) \
-    Logger::Log("info:\n", __VA_ARGS__)
+    Logger::Log(__VA_ARGS__)
 
 #define LOG_CRITICAL(...) \
-    Logger::Log("critical:\n", __VA_ARGS__)
+    Logger::Log(__VA_ARGS__)
 
 #define LOG_WARNING(...) \
-    Logger::Log("warning:\n", __VA_ARGS__)
+    Logger::Log(__VA_ARGS__)
 
 #define LOG_FATAL(...) \
-    Logger::Log("fatal:\n", __VA_ARGS__)
+    Logger::Log(__VA_ARGS__)
 
 #define LOG_DEBUG(...) \
-    Logger::Log("debug:\n", __VA_ARGS__)
+    Logger::Log(__VA_ARGS__)

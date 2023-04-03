@@ -21,7 +21,16 @@ qint32  Server_2048::Start()
         return -1;
     }
 
-    m_database.GetRecords();
+    m_database.Print();
+
+    PlayerRecord  test_record;
+    test_record.m_name  = "ricardo";
+    test_record.m_score = 200;
+    m_database.SubmitRecord(test_record);
+    m_database.Print();
+
+    m_database.RemoveRecord(test_record);
+    m_database.Print();
 
     return 0;
 }

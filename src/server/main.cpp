@@ -2,9 +2,9 @@
 
 int  main(int argc, char **argv)
 {
-    Server_2048  server(argc, argv);
+    Logger::Init();
 
-    server.Start();
+    Server_2048  server(argc, argv);
 
     return server.exec();
 }
