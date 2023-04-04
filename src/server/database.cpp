@@ -97,7 +97,7 @@ void  DataBase_2048::ClearDataBase()
 
 void  DataBase_2048::FetchRecordsFromDataBase()
 {
-    auto  sql_result = m_connection.ExecuteSQL("SELECT * FROM player_records");
+    auto  sql_result = m_connection.ExecuteSQL("SELECT * FROM player_records order by name");
 
     if (sql_result)
     {
