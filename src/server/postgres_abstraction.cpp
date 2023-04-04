@@ -86,6 +86,8 @@ QueryResultType  PGSQLResult::ConvertStatus(PGresult *postgres_query_result)
 
         return QueryResultType::PIPELINE_ABORTED;
     }
+
+    return QueryResultType::NONE;
 }
 
 QString  PGSQLResult::Get(quint32 row, quint32 column)
@@ -211,4 +213,6 @@ DataBaseConnectionStatus  PGConnectionWrapper::ConvertStatus(PGconn *postgres_co
 
         return DataBaseConnectionStatus::SETENV;
     }
+
+    return DataBaseConnectionStatus::NONE;
 }
