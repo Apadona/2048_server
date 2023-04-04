@@ -4,7 +4,7 @@
 #include "gamewindow.hpp"
 #include "client_layouts.hpp"
 #include "client_events.hpp"
-#include <shared/player_record.hpp>
+#include "client_network.hpp"
 
 #include <QApplication>
 #include <QTcpSocket>
@@ -55,7 +55,7 @@ private:
     std::unique_ptr<ScoreBoardLayout>       m_scoreboard_layout;
     std::unique_ptr<PlayerRegisteryLayout>  m_register_layout;
     std::optional<PlayerRecords>            m_players_datas;
-    std::unique_ptr<QTcpSocket>             m_socket;
+    ClientNetwork                           m_network;
 };
 
 // extern Client_2048 *app;

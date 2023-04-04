@@ -12,7 +12,7 @@ Client_2048::Client_2048(int &argc, char **argv):
     QApplication(argc, argv), m_window(nullptr, this), m_mainmenu_layout(std::make_unique<MainMenuLayout>(this)),
     m_game_layout(std::make_unique<GameLayout>(this)), m_scoreboard_layout(std::make_unique<ScoreBoardLayout>(this)),
     m_register_layout(std::make_unique<PlayerRegisteryLayout>(this)),
-    m_socket(std::make_unique<QTcpSocket>())
+    m_network(this)
 {
     m_window.AddLayout(m_mainmenu_layout.get(), Client_2048_View::MAIN_MENU);
     m_window.AddLayout(m_register_layout.get(), Client_2048_View::REGISTER);
@@ -184,6 +184,16 @@ void  Client_2048::HandleAppEvent(Client_2048_Event event)
         }
 
         break;
+
+    case Client_2048_Event::RECIEVED_DATA_FROM_SERVER:
+        const char *server_data = m_network.ReadRecievedData();
+
+        if (server_data)
+        {
+            LOG_INFO("recieved data from the server:", server_data);
+        }
+
+        break;
     }
 }
 
@@ -233,6 +243,8 @@ void  Client_2048::DisplayScores()
 {
     m_state = Client_2048_State::SCORES_MENU;
     m_window.DisplayView(Client_2048_View::SCORES);
+
+    m_network.ConnectToServer();
 
     // m_scoreboard_layout->DisplayScores(m_player_datas);
 }
