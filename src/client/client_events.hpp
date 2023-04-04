@@ -1,7 +1,7 @@
 #pragma once
 
 // events which are specific to our application.
-enum class Application_2048_Event
+enum class Client_2048_Event
 {
   NONE, // null event, does nothing.
   START_MAIN_MENU,

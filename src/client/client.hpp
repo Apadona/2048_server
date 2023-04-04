@@ -2,13 +2,14 @@
 
 #include "gamelogic.hpp"
 #include "gamewindow.hpp"
-#include "applicationlayouts.hpp"
-#include "applicationevents.hpp"
+#include "client_layouts.hpp"
+#include "client_events.hpp"
 #include <shared/player_record.hpp>
 
 #include <QApplication>
+#include <QTcpSocket>
 
-enum class Application_2048_State
+enum class Client_2048_State
 {
     MAIN_MENU,
     REGISTER_MENU,
@@ -16,20 +17,25 @@ enum class Application_2048_State
     SCORES_MENU
 };
 
-class Application_2048: public QApplication
+class Client_2048: public QApplication
 {
     Q_OBJECT
 
 public:
-    Application_2048(int &argc, char **argv);
+    Client_2048(int &argc, char **argv);
 
     qint32  Start();
 
-    void  HandleAppEvent(Application_2048_Event app_event);
+    void  HandleAppEvent(Client_2048_Event app_event);
 
     void  UpdateGameScreen();
 
     bool  CheckIfPlayerRecordExists(const QString &player_name);
+
+    void  SubmitPlayerRecordToServer(const PlayerRecord &record);
+
+// public slots:
+// void  ConnectionAccepted();
 
 private:
     void  DisplayMainMenu();
@@ -41,7 +47,7 @@ private:
     void  StartRegisterMenu();
 
 private:
-    Application_2048_State                  m_state;
+    Client_2048_State                       m_state;
     ApplicationWindow                       m_window;
     GameLogic                               m_game;
     std::unique_ptr<MainMenuLayout>         m_mainmenu_layout;
@@ -49,6 +55,7 @@ private:
     std::unique_ptr<ScoreBoardLayout>       m_scoreboard_layout;
     std::unique_ptr<PlayerRegisteryLayout>  m_register_layout;
     std::optional<PlayerRecords>            m_players_datas;
+    std::unique_ptr<QTcpSocket>             m_socket;
 };
 
-// extern Application_2048 *app;
+// extern Client_2048 *app;
