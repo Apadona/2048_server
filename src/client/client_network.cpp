@@ -6,6 +6,7 @@
 #include <QHostAddress>
 
 ClientNetwork::ClientNetwork(Client_2048 *owner):
+    m_socket(std::make_unique<QTcpSocket>()),
     m_owner(owner)
 {
     connect(m_socket.get(), &QTcpSocket::connected, this, &ClientNetwork::ConnectionStablished);
