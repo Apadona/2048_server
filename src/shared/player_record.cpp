@@ -3,14 +3,25 @@
 
 #include <QTextStream>
 
+#include <cstring>
+
 PlayerRecord::PlayerRecord():
-    m_name("Unknown"), m_score(0), m_played_time(QTime::currentTime())
+    m_score(0), m_played_time(QTime::currentTime())
 {
+    m_name.clear();
 }
 
 PlayerRecord::PlayerRecord(QString name, quint32 score, const QTime &time):
     m_name(name), m_score(score), m_played_time(time)
 {
+}
+
+PlayerRecord::PlayerRecord(const char *serialized)
+{
+    if (serialized)
+    {
+        std::memcpy(this, serialized, sizeof(*this));
+    }
 }
 
 PlayerRecord::PlayerRecord(const PlayerRecord &other)
@@ -130,3 +141,38 @@ std::ostringstream& operator<<(std::ostringstream &out, const PlayerRecord &play
 
     return out;
 }
+
+QDataStream& operator<<(QDataStream &stream, const PlayerRecord &player_record)
+{
+    stream << player_record.m_name << player_record.m_score;
+
+    return stream;
+}
+
+//QDataStream& operator<<(QDataStream &stream, const PlayerRecords &player_records)
+//{
+//    for (auto &i : player_records)
+//    {
+//        stream << i;
+//    }
+
+//    return stream;
+//}
+
+QDataStream& operator>>(QDataStream &stream, PlayerRecord &record)
+{
+    stream >> record.m_name >> record.m_score;
+
+    return stream;
+}
+
+//QDataStream& operator>>(QDataStream &stream, PlayerRecords &records)
+//{
+//    PlayerRecord  record;
+
+//    stream >> record;
+
+//    records.push_back(std::move(record));
+
+//    return stream;
+//}

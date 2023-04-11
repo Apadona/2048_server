@@ -4,6 +4,7 @@
 #include <QTime>
 #include <QFile>
 #include <QTextStream>
+#include <QDataStream>
 
 #include <iostream>
 #include <optional>
@@ -14,6 +15,8 @@ struct PlayerRecord
     PlayerRecord();
 
     PlayerRecord(QString name, quint32 score, const QTime &time = { });
+
+    PlayerRecord(const char *serialized);
 
     PlayerRecord(const PlayerRecord &other);
 
@@ -37,10 +40,18 @@ struct PlayerRecord
         return !bool(*this);
     }
 
-    QString  m_name;
     quint32  m_score;
+    QString  m_name;
     QTime    m_played_time;
 };
+using PlayerRecords = QVector<PlayerRecord>;
+
 std::ostringstream& operator<<(std::ostringstream &out, const PlayerRecord &player_record);
 
-using PlayerRecords = std::vector<PlayerRecord>;
+QDataStream& operator<<(QDataStream &stream, const PlayerRecord &record);
+
+//QDataStream& operator<<(QDataStream &stream, const PlayerRecords &record);
+
+QDataStream& operator>>(QDataStream &stream, PlayerRecord &record);
+
+//QDataStream& operator>>(QDataStream &stream, PlayerRecords &records);

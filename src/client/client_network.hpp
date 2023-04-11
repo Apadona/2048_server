@@ -22,7 +22,12 @@ public:
 
     void  RequestRecordsFromServer();
 
-    const char* ReadRecievedData();
+    PlayerRecords  ReadRecievedRecords();
+
+    bool  IsConnected() const
+    {
+        return m_socket->isOpen();
+    }
 
 public slots:
     void  ConnectionStablished();
@@ -32,14 +37,20 @@ public slots:
     void  ConnectionDestroyed();
 
 private:
-    template<typename Data, typename Type>
-    void  SendPacket(const Packet<Data, Type> &packet)
+    void  SendPacket(Packet &packet)
     {
-        m_socket->write(packet);
-        m_socket->waitForReadyRead(500);
+        auto size = packet.Size();
+        m_socket->write(packet, size);
+        m_socket->waitForReadyRead(200);
+    }
+
+    template<typename Data, typename Type>
+    void  ProcessPacket(const Packet &packet)
+    {
     }
 
 private:
     std::unique_ptr<QTcpSocket>  m_socket;
     Client_2048                 *m_owner;
+    Packet                       m_recieved_packet;     // buffer for processing network packets.
 };

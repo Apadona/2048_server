@@ -4,12 +4,15 @@
 
 #include "postgres_abstraction.hpp"
 #include "database.hpp"
+#include "server_network.hpp"
 
 #include <shared/player_record.hpp>
 
 class Server_2048: public QApplication
 {
     Q_OBJECT
+
+    friend class ServerNetwork;
 
 public:
     Server_2048(int &argc, char **argv);
@@ -28,4 +31,5 @@ public:
 
 private:
     DataBase_2048  m_database;
+    ServerNetwork  m_network;
 };

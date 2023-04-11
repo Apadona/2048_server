@@ -3,6 +3,7 @@
 #include <utils/logger.hpp>
 
 Server_2048::Server_2048(int &argc, char **argv):
+    m_network(this),
     QApplication(argc, argv)
 {
     Start();
@@ -23,14 +24,7 @@ qint32  Server_2048::Start()
 
     m_database.Print();
 
-    PlayerRecord  test_record;
-    test_record.m_name  = "ricardo";
-    test_record.m_score = 200;
-    m_database.SubmitRecord(test_record);
-    m_database.Print();
-
-    m_database.RemoveRecord(test_record);
-    m_database.Print();
+    m_network.Start();
 
     return 0;
 }

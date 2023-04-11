@@ -175,6 +175,8 @@ void  Client_2048::HandleAppEvent(Client_2048_Event event)
         }
         else if (m_state == Client_2048_State::SCORES_MENU)
         {
+            m_network.DisconnetFromServer();
+            m_scoreboard_layout->ClearLayouts();
             DisplayMainMenu();
         }
         else if (m_state == Client_2048_State::REGISTER_MENU)
@@ -186,11 +188,12 @@ void  Client_2048::HandleAppEvent(Client_2048_Event event)
         break;
 
     case Client_2048_Event::RECIEVED_DATA_FROM_SERVER:
-        const char *server_data = m_network.ReadRecievedData();
+        m_players_datas = std::make_optional<PlayerRecords>(m_network.ReadRecievedRecords());
 
-        if (server_data)
+        if (!m_players_datas.value().empty())
         {
-            LOG_INFO("recieved data from the server:", server_data);
+            LOG_INFO("recieved data from the server:");
+            m_scoreboard_layout->DisplayScores(m_players_datas.value());
         }
 
         break;
@@ -246,7 +249,10 @@ void  Client_2048::DisplayScores()
 
     m_network.ConnectToServer();
 
-    // m_scoreboard_layout->DisplayScores(m_player_datas);
+    if (m_network.IsConnected())
+    {
+        m_network.RequestRecordsFromServer();
+    }
 }
 
 void  Client_2048::StartRegisterMenu()

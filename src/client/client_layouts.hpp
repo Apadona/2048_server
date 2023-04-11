@@ -98,11 +98,15 @@ public:
 
     void  DisplayScores(const PlayerRecords &records);
 
+    void ClearLayouts();
+private:
+    void MakeLayout(const PlayerRecord& recood, quint32 row );
+    QLabel* MakeLabel( const QString& title );
 private:
     Client_2048                         *m_owner_app;
-    std::array<QString, 3>                    m_label_headers = { "PlayerName:", "PlayerScore:", "PlayedTime:" };
     QVector<QLabel *>                         m_labels;
     std::unique_ptr<Client_2048_Button>  m_back_button;
+    std::unique_ptr<QHBoxLayout>              m_header_layout;
     std::unique_ptr<QGridLayout>              m_label_grid;
     std::unique_ptr<QHBoxLayout>              m_button_layout;
 };

@@ -5,6 +5,8 @@
 
 #include <QMouseEvent>
 
+static QVector<QPair<QColor, quint32>> COLORS = {};
+
 Client_2048_WidgetData::Client_2048_WidgetData(Client_2048 *app, Client_2048_Event assosiated_event):
     m_owner_app(app), m_assosiated_event(assosiated_event)
 {
@@ -126,42 +128,67 @@ void  GameLayout::Reset()
 ScoreBoardLayout::ScoreBoardLayout(Client_2048 *app):
     m_owner_app(app),
     m_back_button(std::make_unique<Client_2048_Button>(m_owner_app, "Exit", Client_2048_Event::EXIT)),
-    m_label_grid(std::make_unique<QGridLayout>()), m_button_layout(std::make_unique<QHBoxLayout>())
+    m_header_layout(std::make_unique<QHBoxLayout>()), m_label_grid(std::make_unique<QGridLayout>()),
+    m_button_layout(std::make_unique<QHBoxLayout>())
 {
     setObjectName("ScoreBoardLayout");
 
-    for (int i = 0; i < 3; ++i)
-    {
-        m_labels.push_back(new QLabel(m_label_headers[i]));
-        m_labels.at(i)->setAlignment(Qt::AlignCenter);
-        m_labels.at(i)->setAutoFillBackground(true);
-        m_label_grid->addWidget(m_labels.at(i), 0, i);
-    }
-
     m_button_layout->addWidget(m_back_button.get());
 
+    addLayout(m_header_layout.get());
     addLayout(m_label_grid.get());
     addLayout(m_button_layout.get());
 }
 
 void  ScoreBoardLayout::DisplayScores(const PlayerRecords &records)
 {
-    if (!records.empty())
+    if (records.empty())
     {
         return;
     }
 
-    for (auto &i : records)
+    m_header_layout->addWidget(MakeLabel("PlayerNames:"));
+    m_header_layout->addWidget(MakeLabel("Scores:"));
+
+    for (int i = 0; i < records.size(); ++i)
     {
-        int     index  = 1;
-        QLabel *label1 = new QLabel(i.m_name);
-        QLabel *label2 = new QLabel(QString::number(i.m_score));
-        QLabel *label3 = new QLabel(i.m_played_time.toString());
-        m_label_grid->addWidget(label1, index, 0);
-        m_label_grid->addWidget(label2, index, 1);
-        m_label_grid->addWidget(label3, index, 2);
-        ++index;
+        MakeLayout(records[i],i);
     }
+
+    addLayout(m_button_layout.get());
+}
+
+void ScoreBoardLayout::MakeLayout( const PlayerRecord& record, quint32 row )
+{
+    QLabel* name_label = MakeLabel(record.m_name);
+    QLabel* score_label = MakeLabel(QString::number(record.m_score));
+
+    m_label_grid->addWidget(name_label,row,0);
+    m_label_grid->addWidget(score_label,row,1);
+}
+
+void ScoreBoardLayout::ClearLayouts()
+{
+    for( auto* i : m_labels )
+    {
+        m_label_grid->removeWidget(i);
+        m_header_layout->removeWidget(i);
+    }
+
+    m_labels.clear();
+}
+
+QLabel* ScoreBoardLayout::MakeLabel( const QString& title )
+{
+    if( !title.isEmpty() )
+    {
+        m_labels.push_back(new QLabel(title));
+        m_labels.back()->setAlignment(Qt::AlignCenter);
+        m_labels.back()->setAutoFillBackground(true);
+        return m_labels.back();
+    }
+
+    return nullptr;
 }
 
 PlayerRegisteryLayout::PlayerRegisteryLayout(Client_2048 *app):

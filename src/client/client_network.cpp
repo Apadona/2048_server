@@ -26,16 +26,27 @@ void  ClientNetwork::DisconnetFromServer()
 
 void  ClientNetwork::RequestRecordsFromServer()
 {
-    RequestRecordsPacket  packet;
+    Packet  packet;
 
     packet.SetType(PacketTypes::REQUEST_RECORDS);
 
     SendPacket(packet);
 }
 
-const char * ClientNetwork::ReadRecievedData()
+PlayerRecords  ClientNetwork::ReadRecievedRecords()
 {
-    return m_socket->readAll();
+    PlayerRecords  records;
+    PlayerRecord   temp;
+
+    if (m_recieved_packet)
+    {
+        if (m_recieved_packet.GetType<PacketTypes>() == PacketTypes::RECIEVE_RECORDS)
+        {
+            m_recieved_packet >> records;
+        }
+    }
+
+    return std::move(records);
 }
 
 void  ClientNetwork::ConnectionStablished()
@@ -45,7 +56,16 @@ void  ClientNetwork::ConnectionStablished()
 
 void  ClientNetwork::RecievedPacket()
 {
-    m_owner->HandleAppEvent(Client_2048_Event::RECIEVED_DATA_FROM_SERVER);
+    auto *socket = qobject_cast<QTcpSocket *>(sender());
+
+    m_recieved_packet = socket->readAll();
+
+    m_recieved_packet.SetType(PacketTypes::RECIEVE_RECORDS);
+
+    if (m_recieved_packet)
+    {
+        m_owner->HandleAppEvent(Client_2048_Event::RECIEVED_DATA_FROM_SERVER);
+    }
 }
 
 void  ClientNetwork::ConnectionDestroyed()
